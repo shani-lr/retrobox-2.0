@@ -1,0 +1,29 @@
+<div class="row" *ngIf="(authService.authState | async) as user; else showLogin">
+  <div class="col-md-auto note">
+    <div class="card">
+      <div class="card-body">
+        <textarea type="text" class="card-title" placeholder="Add new note here..." [(ngModel)]="newNote"></textarea>
+        <div class="save" (click)="onSave()"><i class="fas fa-check-circle"></i></div>
+        <div class="cancel" (click)="onCancel()"><i class="fas fa-times-circle"></i></div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-auto note" *ngFor="let note of myNotes">
+    <div class="card">
+      <div class="card-body">
+        <h6 class="card-title">{{note.text}}</h6>
+      </div>
+    </div>
+  </div>
+</div>
+<ng-template #showLogin>
+  <div class="container" style="margin-top: 2em;">
+    <div class="row">
+      <div class="col">
+        <div class="alert alert-danger" role="alert">
+          You need to be logged in to view your notes.
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-template>
