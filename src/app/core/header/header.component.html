@@ -2,12 +2,15 @@
   <div class="navbar-brand" style="cursor: pointer; outline: none" routerLink="/">RetroBox</div>
     <ul class="navbar-nav mr-auto">
       <li class="nav-item" style="cursor: pointer">
-        <a routerLink="my-notes" class="nav-link">My Notes</a>
+        <a routerLink="my-notes" routerLinkActive="active" class="nav-link">My Notes</a>
+      </li>
+      <li *ngIf="isAdmin" class="nav-item" style="cursor: pointer">
+        <a routerLink="retro" routerLinkActive="active" class="nav-link">Retro</a>
       </li>
     </ul>
     <ul class="navbar-nav ml-auto">
       <li class="nav-item">
-        <div *ngIf="(authService.authState | async) as user; else showLogin">
+        <div *ngIf="user as user; else showLogin">
           <div class="nav-link" style="cursor: pointer" (click)="logout()">Logout</div>
         </div>
         <ng-template #showLogin>

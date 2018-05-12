@@ -4,6 +4,8 @@ import { Subscription } from 'rxjs/Subscription';
 import { AngularFirestoreDocument } from 'angularfire2/firestore/document/document';
 import { AuthService } from '../core/auth.service';
 import { User } from 'firebase';
+import { Note } from '../core/note.model';
+import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-my-notes',
@@ -12,16 +14,16 @@ import { User } from 'firebase';
 })
 export class MyNotesComponent implements OnInit, OnDestroy {
   newNote: '';
-  notes: any[];
-  myNotes: any[];
+  notes: Note[];
+  myNotes: Note[];
   user: User;
-  private document: AngularFirestoreDocument<{ notes: {text: string, by: string}[] }>;
+  private document: AngularFirestoreDocument<{ notes: Note[] }>;
   private collectionId = 'notes';
   private documentId = '3ZV8XLxQcSpCpZA4qpJK';
   private notesSubscription: Subscription;
   private userSubscription: Subscription;
 
-  constructor(private db: AngularFirestore, public authService: AuthService) {
+  constructor(private db: AngularFirestore, public authService: AuthService, private datePipe: DatePipe) {
   }
 
   ngOnInit() {
@@ -30,16 +32,17 @@ export class MyNotesComponent implements OnInit, OnDestroy {
       this.authService.authState.subscribe(res => {
         this.user = res;
         this.notesSubscription = this.document.valueChanges()
-          .subscribe((doc: { notes: {text: string, by: string}[] }) => {
-            this.notes = doc ? doc.notes : undefined;
-            this.myNotes = doc ? doc.notes.filter(x => x.by === this.user.displayName) : undefined;
+          .subscribe((doc: { notes: Note[] }) => {
+            this.notes = doc ? doc.notes : [];
+            this.myNotes = doc ? doc.notes.filter(x => x.by === this.user.displayName) : [];
           });
       });
   }
 
   onSave() {
     if (this.newNote) {
-      this.notes.push({ text: this.newNote, by: this.user.displayName });
+      const date = this.datePipe.transform(new Date(), 'MMM d');
+      this.notes.push({ text: this.newNote, by: this.user.displayName, group: '', at: date});
       this.document.update({ notes: this.notes });
       this.newNote = '';
     }

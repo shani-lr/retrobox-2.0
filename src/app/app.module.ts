@@ -9,6 +9,8 @@ import { MyNotesComponent } from './my-notes/my-notes.component';
 import { CoreModule } from './core/core.module';
 import { environment } from '../environments/environment';
 import { RetroComponent } from './retro/retro.component';
+import { DragulaModule } from 'ng2-dragula';
+import { CommonModule, DatePipe } from '@angular/common';
 
 @NgModule({
   declarations: [
@@ -19,11 +21,12 @@ import { RetroComponent } from './retro/retro.component';
   imports: [
     BrowserModule,
     CoreModule,
+    DragulaModule,
     AngularFireModule.initializeApp(environment.firebase),
     AngularFirestoreModule,
     AngularFireAuthModule,
   ],
-  providers: [],
+  providers: [DatePipe],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
