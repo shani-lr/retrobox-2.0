@@ -11,10 +11,10 @@
     <ul class="navbar-nav ml-auto">
       <li class="nav-item">
         <div *ngIf="user as user; else showLogin">
-          <div class="nav-link" style="cursor: pointer" (click)="logout()">Logout</div>
+          <div class="nav-link" style="cursor: pointer" (click)="logout()"><i class="fas fa-sign-out-alt"></i> Logout</div>
         </div>
         <ng-template #showLogin>
-          <div class="nav-link" style="cursor: pointer" (click)="login()">Login</div>
+          <div class="nav-link" style="cursor: pointer" (click)="login()"><i class="fas fa-sign-in-alt"></i> Login</div>
         </ng-template>
       </li>
     </ul>

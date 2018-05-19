@@ -32,3 +32,32 @@
   height: 10em;
   outline: none;
 }
+
+.btn-info:focus {
+  box-shadow: none;
+}
+
+.show>.btn-info.dropdown-toggle:focus {
+  box-shadow: none;
+}
+
+.btn-info:not(:disabled):not(.disabled):active:focus {
+  box-shadow: none;
+}
+
+button:focus {
+  outline: none;
+}
+
+.dropdown-item:active {
+  background: #117a8b;
+  border-bottom-color: #10707f;
+}
+
+.team-input::placeholder {
+  color: #17a2b8;
+}
+
+.form-control:focus {
+  box-shadow: none;
+}

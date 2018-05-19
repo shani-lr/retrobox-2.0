@@ -8,7 +8,7 @@ import { AuthService } from '../core/auth.service';
 import { Note } from '../core/note.model';
 import { DatePipe } from '@angular/common';
 import { AppUser } from '../core/user.model';
-import { Team } from '../core/team.model';
+import { Team, TeamExtended } from '../core/team.model';
 
 @Component({
   selector: 'app-my-notes',
@@ -22,13 +22,20 @@ export class MyNotesComponent implements OnInit, OnDestroy {
   user: User;
   team = '';
   sprint = '';
-  private notesDocument: AngularFirestoreDocument<{notes: Note[]}>;
+  isNewUser = true;
+  teams: Team[] = [];
+  users: AppUser[];
+  teamToCreate: TeamExtended = {
+    name: '',
+    admin: '',
+    sprint: ''
+  };
+  createTeam = false;
+  private notesDocument: AngularFirestoreDocument<any>;
   private appDocument: AngularFirestoreDocument<{users: AppUser[], teams: Team[]}>;
-  private teamDocument: AngularFirestoreDocument<{sprints: string[]}>;
   private notesSubscription: Subscription;
   private userSubscription: Subscription;
   private appSubscription: Subscription;
-  private teamsSubscription: Subscription;
 
   constructor(private db: AngularFirestore, public authService: AuthService, private datePipe: DatePipe) {
   }
@@ -42,34 +49,38 @@ export class MyNotesComponent implements OnInit, OnDestroy {
         // get user's team
         this.appDocument = this.db.collection('app').doc('app');
         this.appSubscription = this.appDocument.valueChanges()
-          .subscribe((appDoc: { users: AppUser[], teams: Team[]}) => {
-            this.team = appDoc.users.find(
-              user => user.name.toLowerCase() === this.user.displayName.toLowerCase()).team;
+          .subscribe((appDoc: { users: AppUser[], teams: Team[] }) => {
+            const appUser = appDoc.users.find(
+              user => user.name.toLowerCase() === this.user.displayName.toLowerCase());
+            this.teams = appDoc.teams;
+            this.users = appDoc.users;
 
-            // get team's sprint
-            this.teamDocument = this.db.collection(this.team).doc('sprints');
-            this.teamsSubscription = this.teamDocument.valueChanges()
-              .subscribe((teamDoc: {sprints: string[]}) => {
-                this.sprint = teamDoc.sprints[teamDoc.sprints.length - 1];
+            if (appUser) {
+              this.isNewUser = false;
+              this.team = appUser.team;
 
-                // get notes for user
-                this.notesDocument = this.db.collection(this.team).doc(this.sprint);
-                this.notesSubscription = this.notesDocument.valueChanges()
-                  .subscribe((doc: { notes: Note[] }) => {
-                    this.notes = doc && doc.notes ? doc.notes : [];
-                    this.myNotes = this.user && doc && doc.notes ? doc.notes.filter(x => x.by === this.user.displayName) : [];
-                  });
-              });
+              // get notes for user
+              this.notesDocument = this.db.collection('app').doc(this.team);
+              this.notesSubscription = this.notesDocument.valueChanges()
+                .subscribe(doc => {
+                  if (doc && doc.sprints) {
+                    this.sprint = doc.sprints[doc.sprints.length - 1];
+                    this.notes = doc && doc[this.sprint] ? doc[this.sprint] : [];
+                    this.myNotes = this.user && doc && doc[this.sprint] ? doc[this.sprint].filter(x => x.by === this.user.displayName) : [];
+                  }
+                });
+            }
           });
-
       });
-    }
+  }
 
   onSave() {
     if (this.newNote) {
       const date = this.datePipe.transform(new Date(), 'MMM d');
       this.notes.push({ text: this.newNote, by: this.user.displayName, group: '', at: date});
-      this.notesDocument.update({ notes: this.notes });
+      const result = {};
+      result[this.sprint] = this.notes;
+      this.notesDocument.update(result);
       this.newNote = '';
     }
   }
@@ -79,8 +90,28 @@ export class MyNotesComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.notesSubscription.unsubscribe();
-    this.userSubscription.unsubscribe();
     this.appSubscription.unsubscribe();
+    this.userSubscription.unsubscribe();
+    if (this.notesSubscription) {
+      this.notesSubscription.unsubscribe();
+    }
+  }
+
+  onCreateTeam() {
+    this.teams.push({name: this.teamToCreate.name, admin: this.teamToCreate.admin});
+    this.appDocument.update({teams: this.teams, users: this.users});
+    const doc = {sprints: [this.teamToCreate.sprint]};
+    doc[this.teamToCreate.sprint] = [];
+    this.db.collection('app').doc(this.teamToCreate.name)
+      .set(doc)
+      .then(() => {
+        this.createTeam = false;
+        this.team = this.teamToCreate.name;
+      });
+  }
+
+  onJoinTeam() {
+    this.users.push({name: this.user.displayName, team: this.team});
+    this.appDocument.update({teams: this.teams, users: this.users});
   }
 }
