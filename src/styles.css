@@ -8,3 +8,11 @@ html, body {
   height: 13em;
   background-color: cornsilk;
 }
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.outline-none {
+  outline: none;
+}

@@ -1,0 +1,13 @@
+.container {
+  margin-top: 2em;
+  text-align: center;
+}
+
+.jumbotron {
+  background-color: lightskyblue;
+}
+
+h1 {
+  font-family: 'Bowlby One', cursive;
+  color: #343a40;
+}
