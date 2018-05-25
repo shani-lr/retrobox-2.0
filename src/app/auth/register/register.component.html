@@ -37,7 +37,7 @@
              placeholder="Team name" [(ngModel)]="teamToCreate.name">
       <input type="text" class="form-control d-inline-block team-input"
              placeholder="Team admin" [(ngModel)]="teamToCreate.admin">
-      <input type="text" class="form-control d-inline-block team-input"
+      <input type="number" class="form-control d-inline-block team-input"
              placeholder="Team sprint number" [(ngModel)]="teamToCreate.sprint">
       <button class="btn btn-info" (click)="onCreateTeam()"><i class="fas fa-users"></i> Create</button>
     </div>

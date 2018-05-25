@@ -1,7 +1,9 @@
 <div class="retro">
   <div class="wrapper row">
     <div class="container col-md-auto" *ngFor="let group of notesByGroups" [dragula]='"first-bag"'>
-      <input type="text" placeholder="Add title..." (focusout)="saveGroup(inputTitle)" #inputTitle value="{{group.group}}">
+      <input type="text" placeholder="Add title..."
+             (focusout)="saveGroup(inputTitle)" (keydown.enter)="saveGroup(inputTitle);false"
+             #inputTitle value="{{group.group}}">
       <div *ngFor="let note of group.notes" class="note">
         <div class="card">
           <div class="card-body">

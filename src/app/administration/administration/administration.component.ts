@@ -7,16 +7,7 @@ import { AppUser } from '../../core/models/user.model';
 
 @Component({
   selector: 'app-administration',
-  template: `
-    <div class="administration">
-      <div class="alert alert-primary" role="alert">
-        <h4 class="card-title d-inline-block">
-          {{user?.team}} team sprint {{currentSprint}}.
-        </h4>
-        <button class="btn btn-primary d-inline-block" (click)="createNewSprint()">Create new sprint</button>
-      </div>
-    </div>
-  `,
+  templateUrl: './administration.component.html',
   styleUrls: ['./administration.component.css']
 })
 export class AdministrationComponent implements OnInit {
@@ -26,14 +17,13 @@ export class AdministrationComponent implements OnInit {
   private userSubscription: Subscription;
   private teamSubscription: Subscription;
 
-  constructor(private dataService: DataService, private router: Router) {
-  }
+  constructor(private dataService: DataService, private router: Router) { }
 
   ngOnInit() {
     this.userSubscription = this.dataService.getAppUser().subscribe(user => {
       this.user = user;
       this.teamSubscription = this.dataService.getTeam(this.user.team)
-        .subscribe((doc: { sprints: string[] }) => {
+        .subscribe((doc: {sprints: string[]}) => {
           this.team = doc;
           if (this.team.sprints) {
             this.currentSprint = this.team.sprints[this.team.sprints.length - 1];
