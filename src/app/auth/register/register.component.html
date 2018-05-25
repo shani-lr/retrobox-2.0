@@ -1,0 +1,45 @@
+<div class="container">
+  <div class="row">
+    <div class="col">
+      <div class="alert alert-info" role="alert">
+        <i class="fas fa-info-circle"></i> Seems like you don't have a team 😢 Join one!
+      </div>
+    </div>
+  </div>
+  <div class="row margin-top-1em">
+    <div class="col-md-auto d-inline-block padding-right-0">
+      <div class="d-inline-block center-vertically">Join an existing team:</div>
+    </div>
+    <div class="col-md-auto d-inline-block">
+      <div ngbDropdown class="d-inline-block">
+        <button class="btn btn-info" id="dropdownBasic1" ngbDropdownToggle>
+          {{ team ? team : 'No team selected'}}
+        </button>
+        <div ngbDropdownMenu aria-labelledby="dropdownBasic1" class="dropdown-menu">
+          <button *ngFor="let t of app?.teams" class="dropdown-item" (click)="team = t.name">{{t.name}}</button>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-auto" *ngIf="team">
+      <button class="btn btn-info" (click)="onJoinTeam()">Join! <i class="fas fa-hand-point-right"></i></button>
+    </div>
+    <div class="col-md-auto d-inline-block" *ngIf="!createTeam; else showCreateTeam">
+      <button class="btn btn-link center-vertically" (click)="createTeam = true">Can't find your team?
+      </button>
+    </div>
+  </div>
+</div>
+<ng-template #showCreateTeam>
+  <div *ngIf="createTeam">
+    <div class="col-md-auto d-inline-block margin-top-1em">
+      <div class="div d-inline-block padding-right-1em">Create a new one:</div>
+      <input type="text" class="form-control d-inline-block team-input"
+             placeholder="Team name" [(ngModel)]="teamToCreate.name">
+      <input type="text" class="form-control d-inline-block team-input"
+             placeholder="Team admin" [(ngModel)]="teamToCreate.admin">
+      <input type="text" class="form-control d-inline-block team-input"
+             placeholder="Team sprint number" [(ngModel)]="teamToCreate.sprint">
+      <button class="btn btn-info" (click)="onCreateTeam()"><i class="fas fa-users"></i> Create</button>
+    </div>
+  </div>
+</ng-template>

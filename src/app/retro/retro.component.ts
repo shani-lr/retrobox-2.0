@@ -5,11 +5,9 @@ import { AngularFirestore } from 'angularfire2/firestore';
 import { DragulaService } from 'ng2-dragula';
 import 'rxjs/add/operator/map';
 
-import { AuthService } from '../core/auth.service';
-import { Note } from '../core/note.model';
-import { AppUser } from '../core/user.model';
-import { User } from 'firebase';
-import { Team } from '../core/team.model';
+import { Note } from '../core/models/note.model';
+import { DataService } from '../shared/data.service';
+import { AppUser } from '../core/models/user.model';
 
 @Component({
   selector: 'app-retro',
@@ -20,59 +18,41 @@ import { Team } from '../core/team.model';
 export class RetroComponent implements OnInit, OnDestroy {
   notesByGroups: { group: string, notes: Note[] }[] = [];
   notes: Note[];
-  isAdmin: boolean;
-  private teamName = '';
+  private user: AppUser;
   private sprint = '';
-  private notesSubscription: Subscription;
   private userSubscription: Subscription;
+  private teamSubscription: Subscription;
   private dragulaSubscription: Subscription;
-  private user: User;
-  private appDocument: AngularFirestoreDocument<{ users: AppUser[], teams: Team[] }>;
-  private appSubscription: Subscription;
-  private notesDocument: AngularFirestoreDocument<any>;
-  private team: Team;
+  private teamData: { sprints: string[] };
 
-  constructor(private db: AngularFirestore, public authService: AuthService, private dragulaService: DragulaService) {
+  constructor(private db: AngularFirestore, private dragulaService: DragulaService, private dataService: DataService) {
   }
 
   ngOnInit() {
+    this.configureDragula();
+
+    this.userSubscription =
+      this.dataService.getAppUser().subscribe(user => {
+      this.user = user;
+      this.teamSubscription = this.dataService.getTeam(this.user.team)
+        .subscribe((doc: {sprints: string[]}) => {
+          this.teamData = doc;
+          if (this.teamData && this.teamData.sprints) {
+            this.sprint = this.teamData.sprints[this.teamData.sprints.length - 1];
+            this.notes = this.teamData && this.teamData[this.sprint] ? this.teamData[this.sprint] : [];
+            this.notesByGroups = [];
+            this.mapNotesToGroups();
+          }
+        });
+    });
+  }
+
+  private configureDragula() {
     this.dragulaService.setOptions('first-bag', {
       moves: function (el: any, container: any, handle: any): any {
         return el.tagName !== 'INPUT';
       }
     });
-
-    this.userSubscription =
-      this.authService.authState.subscribe(res => {
-        this.user = res;
-
-        // get user's team
-        this.appDocument = this.db.collection('app').doc('app');
-        this.appSubscription = this.appDocument.valueChanges()
-          .subscribe((appDoc: { users: AppUser[], teams: Team[] }) => {
-            const appUser = appDoc.users.find(
-              user => user.name.toLowerCase() === this.user.displayName.toLowerCase());
-            this.teamName = appUser ? appUser.team : undefined;
-
-            if (this.teamName) {
-              this.team = appDoc.teams.find(
-                x => x.name.toLowerCase() === this.teamName.toLowerCase());
-              this.isAdmin = this.team && this.user.displayName === this.team.admin;
-
-              // get notes for user
-              this.notesDocument = this.db.collection('app').doc(this.teamName);
-              this.notesSubscription = this.notesDocument.valueChanges()
-                .subscribe(doc => {
-                  if (doc && doc.sprints) {
-                    this.sprint = doc.sprints[doc.sprints.length - 1];
-                    this.notes = doc && doc[this.sprint] ? doc[this.sprint] : [];
-                    this.notesByGroups = [];
-                    this.mapNotesToGroups();
-                  }
-                });
-            }
-          });
-      });
 
     this.dragulaSubscription =
       this.dragulaService.drop.subscribe((value) => {
@@ -99,9 +79,8 @@ export class RetroComponent implements OnInit, OnDestroy {
         note.group = title;
       }
     });
-    const result = {};
-    result[this.sprint] = this.notes;
-    this.notesDocument.update(result);
+    this.teamData[this.sprint] = this.notes;
+    this.dataService.updateTeam(this.user.team, this.teamData);
   }
 
   mapNotesToGroups() {
@@ -127,10 +106,10 @@ export class RetroComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.userSubscription.unsubscribe();
     this.dragulaSubscription.unsubscribe();
-    if (this.notesSubscription) {
-      this.notesSubscription.unsubscribe();
+    this.userSubscription.unsubscribe();
+    if (this.teamSubscription) {
+      this.teamSubscription.unsubscribe();
     }
   }
 }

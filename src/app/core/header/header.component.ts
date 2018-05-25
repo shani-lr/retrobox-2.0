@@ -1,25 +1,28 @@
-import { Component, OnInit } from '@angular/core';
-import { AuthService } from '../auth.service';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router} from '@angular/router';
-import { User } from 'firebase';
+
+import { AuthService } from '../../auth/auth.service';
+import { DataService } from '../../shared/data.service';
+import { Subscription } from 'rxjs/Subscription';
 
 @Component({
   selector: 'app-header',
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.css']
 })
-export class HeaderComponent implements OnInit {
-
+export class HeaderComponent implements OnInit, OnDestroy {
+  isLoggedIn: boolean;
   isAdmin: boolean;
-  user: User;
+  private isLoggedInSubscription: Subscription;
+  private isAdminSubscription: Subscription;
 
-  constructor(public authService: AuthService, private router: Router) { }
+  constructor(private authService: AuthService, private dataService: DataService, private router: Router) { }
 
-  ngOnInit(): void {
-    this.authService.authState.subscribe(res => {
-      this.user = res;
-      this.isAdmin = this.user && res.displayName === 'Shani Laster';
-    });
+  ngOnInit() {
+    this.isLoggedInSubscription =
+      this.authService.isLoggedIn().subscribe((isLoggedIn: boolean) => this.isLoggedIn = isLoggedIn);
+    this.isAdminSubscription =
+      this.dataService.isAdmin().subscribe((isAdmin: boolean) => this.isAdmin = isAdmin);
   }
 
   login() {
@@ -29,6 +32,11 @@ export class HeaderComponent implements OnInit {
   logout() {
     this.authService.logout();
     this.router.navigate(['/']);
+  }
+
+  ngOnDestroy() {
+    this.isLoggedInSubscription.unsubscribe();
+    this.isAdminSubscription.unsubscribe();
   }
 
 }

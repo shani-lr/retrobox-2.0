@@ -1,5 +1,5 @@
-<div class="retro" *ngIf="isAdmin; else showError">
-  <div class='wrapper row'>
+<div class="retro">
+  <div class="wrapper row">
     <div class="container col-md-auto" *ngFor="let group of notesByGroups" [dragula]='"first-bag"'>
       <input type="text" placeholder="Add title..." (focusout)="saveGroup(inputTitle)" #inputTitle value="{{group.group}}">
       <div *ngFor="let note of group.notes" class="note">
@@ -13,15 +13,3 @@
     </div>
   </div>
 </div>
-<ng-template #showError>
-  <div class="container">
-    <div class="row">
-      <div class="col">
-        <div class="alert alert-danger" role="alert">
-          <i class="fas fa-exclamation-circle"></i>
-          You need to be logged in as group admin to see everyone's notes.
-        </div>
-      </div>
-    </div>
-  </div>
-</ng-template>
