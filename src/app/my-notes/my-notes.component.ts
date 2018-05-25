@@ -15,8 +15,8 @@ export class MyNotesComponent implements OnInit, OnDestroy {
   newNote: '';
   notes: Note[];
   myNotes: Note[];
-  user: AppUser;
-  sprint = '';
+  private user: AppUser;
+  private sprint = '';
   private teamData;
   private teamSubscription: Subscription;
   private userSubscription: Subscription;
@@ -25,13 +25,12 @@ export class MyNotesComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    // get user
     this.userSubscription = this.dataService.getAppUser().subscribe(user => {
       this.user = user;
       this.teamSubscription = this.dataService.getTeam(this.user.team)
         .subscribe((doc: {sprints: string[]}) => {
           this.teamData = doc;
-          if (this.teamData && this.teamData.sprints) {
+          if (this.teamData.sprints) {
             this.sprint = this.teamData.sprints[this.teamData.sprints.length - 1];
             this.notes = this.teamData && this.teamData[this.sprint] ? this.teamData[this.sprint] : [];
             this.myNotes =

@@ -11,6 +11,7 @@ import { environment } from '../environments/environment';
 import { AuthModule } from './auth/auth.module';
 import { MyNotesModule } from './my-notes/my-notes.module';
 import { RetroModule } from './retro/retro.module';
+import { AdministrationModule } from './administration/administration.module';
 
 
 @NgModule({
@@ -23,6 +24,7 @@ import { RetroModule } from './retro/retro.module';
     AuthModule,
     MyNotesModule,
     RetroModule,
+    AdministrationModule,
     AngularFireModule.initializeApp(environment.firebase),
     AngularFirestoreModule,
     AngularFireAuthModule,

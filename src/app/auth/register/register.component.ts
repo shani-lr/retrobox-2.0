@@ -41,7 +41,7 @@ export class RegisterComponent implements OnInit, OnDestroy {
     this.dataService.updateApplication(this.app);
     const doc = {sprints: [this.teamToCreate.sprint]};
     doc[this.teamToCreate.sprint] = [];
-    this.dataService.createDocument(this.teamToCreate.name, doc)
+    this.dataService.createApplicationDocument(this.teamToCreate.name, doc)
       .then(() => {
         this.createTeam = false;
         this.team = this.teamToCreate.name;

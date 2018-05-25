@@ -1,0 +1,22 @@
+.btn-primary:focus {
+  box-shadow: none;
+  outline: none;
+}
+
+.btn-primary:not(:disabled):not(.disabled):active:focus {
+  box-shadow: none;
+  outline: none;
+}
+
+.administration {
+  margin: 2em;
+}
+
+.alert {
+  padding: 1em 4em;
+  text-align: center;
+}
+
+.card-title {
+  margin-right: 2em;
+}

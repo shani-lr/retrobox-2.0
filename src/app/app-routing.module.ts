@@ -10,6 +10,7 @@ import { AuthorizationGuard } from './auth/guards/authorization.guard';
 import { RegisterComponent } from './auth/register/register.component';
 import { AdminGuard } from './auth/guards/admin.guard';
 import { LoginAdminComponent } from './auth/login/login-admin.component';
+import { AdministrationComponent } from './administration/administration/administration.component';
 
 const appRoutes: Routes = [
   { path: '', component: HomeComponent },
@@ -18,6 +19,7 @@ const appRoutes: Routes = [
   { path: 'register', component: RegisterComponent },
   { path: 'my-notes', component: MyNotesComponent, canActivate: [AuthenticationGuard, AuthorizationGuard] },
   { path: 'retro', component: RetroComponent, canActivate: [AuthenticationGuard, AuthorizationGuard, AdminGuard] },
+  { path: 'administration', component: AdministrationComponent, canActivate: [AuthenticationGuard, AuthorizationGuard, AdminGuard] },
   { path: '**', redirectTo: '', pathMatch: 'full' },
 ];
 

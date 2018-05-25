@@ -1,7 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { AngularFirestoreDocument } from 'angularfire2/firestore/document/document';
 import { Subscription } from 'rxjs/Subscription';
-import { AngularFirestore } from 'angularfire2/firestore';
 import { DragulaService } from 'ng2-dragula';
 import 'rxjs/add/operator/map';
 
@@ -25,7 +23,7 @@ export class RetroComponent implements OnInit, OnDestroy {
   private dragulaSubscription: Subscription;
   private teamData: { sprints: string[] };
 
-  constructor(private db: AngularFirestore, private dragulaService: DragulaService, private dataService: DataService) {
+  constructor(private dragulaService: DragulaService, private dataService: DataService) {
   }
 
   ngOnInit() {
@@ -37,7 +35,7 @@ export class RetroComponent implements OnInit, OnDestroy {
       this.teamSubscription = this.dataService.getTeam(this.user.team)
         .subscribe((doc: {sprints: string[]}) => {
           this.teamData = doc;
-          if (this.teamData && this.teamData.sprints) {
+          if (this.teamData.sprints) {
             this.sprint = this.teamData.sprints[this.teamData.sprints.length - 1];
             this.notes = this.teamData && this.teamData[this.sprint] ? this.teamData[this.sprint] : [];
             this.notesByGroups = [];

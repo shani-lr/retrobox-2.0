@@ -54,7 +54,7 @@ export class DataService {
     this.appDoc.update(updatedApplication);
   }
 
-  createDocument(name: string, value: any): Promise<void> {
+  createApplicationDocument(name: string, value: any): Promise<void> {
     return this.db.collection('app').doc(name).set(value);
   }
 
