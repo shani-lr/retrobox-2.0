@@ -10,15 +10,17 @@ import { AuthorizationGuard } from './auth/guards/authorization.guard';
 import { RegisterComponent } from './auth/register/register.component';
 import { AdminGuard } from './auth/guards/admin.guard';
 import { LoginAdminComponent } from './auth/login/login-admin.component';
-import { AdministrationComponent } from './administration/administration/administration.component';
+import { AdministrationComponent } from './administration/administration.component';
+import { OldRetrosComponent } from './retro/old-retros/old-retros.component';
 
 const appRoutes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'login', component: LoginComponent },
   { path: 'login-admin', component: LoginAdminComponent },
-  { path: 'register', component: RegisterComponent },
+  { path: 'register', component: RegisterComponent, canActivate: [AuthenticationGuard] },
   { path: 'my-notes', component: MyNotesComponent, canActivate: [AuthenticationGuard, AuthorizationGuard] },
   { path: 'retro', component: RetroComponent, canActivate: [AuthenticationGuard, AuthorizationGuard, AdminGuard] },
+  { path: 'old-retros', component: OldRetrosComponent, canActivate: [AuthenticationGuard, AuthorizationGuard] },
   { path: 'administration', component: AdministrationComponent, canActivate: [AuthenticationGuard, AuthorizationGuard, AdminGuard] },
   { path: '**', redirectTo: '', pathMatch: 'full' },
 ];

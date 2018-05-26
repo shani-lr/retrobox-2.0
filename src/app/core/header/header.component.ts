@@ -13,16 +13,22 @@ import { Subscription } from 'rxjs/Subscription';
 export class HeaderComponent implements OnInit, OnDestroy {
   isLoggedIn: boolean;
   isAdmin: boolean;
+  isRegistered: boolean;
   private isLoggedInSubscription: Subscription;
   private isAdminSubscription: Subscription;
+  private isRegisteredSubscription: Subscription;
 
   constructor(private authService: AuthService, private dataService: DataService, private router: Router) { }
 
   ngOnInit() {
     this.isLoggedInSubscription =
-      this.authService.isLoggedIn().subscribe((isLoggedIn: boolean) => this.isLoggedIn = isLoggedIn);
-    this.isAdminSubscription =
-      this.dataService.isAdmin().subscribe((isAdmin: boolean) => this.isAdmin = isAdmin);
+      this.authService.isLoggedIn().subscribe((isLoggedIn: boolean) => {
+        this.isLoggedIn = isLoggedIn;
+        this.isAdminSubscription =
+          this.dataService.isAdmin().subscribe((isAdmin: boolean) => this.isAdmin = isAdmin);
+        this.isRegisteredSubscription =
+          this.dataService.isRegistered().subscribe((isRegistered: boolean) => this.isRegistered = isRegistered);
+      });
   }
 
   login() {
@@ -36,7 +42,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.isLoggedInSubscription.unsubscribe();
-    this.isAdminSubscription.unsubscribe();
+    if (this.isAdminSubscription) {
+      this.isAdminSubscription.unsubscribe();
+    }
+    if (this.isRegisteredSubscription) {
+      this.isRegisteredSubscription.unsubscribe();
+    }
   }
 
 }

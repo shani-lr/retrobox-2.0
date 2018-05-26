@@ -13,8 +13,8 @@ import { DataService } from '../shared/data.service';
 })
 export class MyNotesComponent implements OnInit, OnDestroy {
   newNote: '';
-  notes: Note[];
   myNotes: Note[];
+  private notes: Note[];
   private user: AppUser;
   private sprint = '';
   private teamData;
@@ -25,7 +25,7 @@ export class MyNotesComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.userSubscription = this.dataService.getAppUser().subscribe(user => {
+    this.userSubscription = this.dataService.getUser().subscribe(user => {
       this.user = user;
       this.teamSubscription = this.dataService.getTeam(this.user.team)
         .subscribe((doc: {sprints: string[]}) => {

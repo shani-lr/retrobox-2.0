@@ -1,6 +1,11 @@
-<div class="retro">
-  <div class="wrapper row">
-    <div class="container col-md-auto" *ngFor="let group of notesByGroups" [dragula]='"first-bag"'>
+<div>
+  <div class="row">
+    <div class="col retro-title">
+      <h3>Sprint {{sprint}}</h3>
+    </div>
+  </div>
+  <div class="row grid">
+    <div class="col-md-auto container" *ngFor="let group of notesByGroups" [dragula]='"first-bag"'>
       <input type="text" placeholder="Add title..."
              (focusout)="saveGroup(inputTitle)" (keydown.enter)="saveGroup(inputTitle);false"
              #inputTitle value="{{group.group}}">
@@ -12,6 +17,13 @@
           </div>
         </div>
       </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+      <button class="btn btn-info float-right" style="margin: 1em" *ngIf="oldSprint" (click)="goBack.emit()">
+        <i class="fas fa-arrow-circle-left"></i> Back
+      </button>
     </div>
   </div>
 </div>

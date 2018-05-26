@@ -1,11 +1,14 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
   <div class="navbar-brand cursor-pointer outline-none" routerLink="/">RetroBox</div>
     <ul class="navbar-nav mr-auto">
-      <li *ngIf="isLoggedIn" class="nav-item cursor-pointer">
+      <li *ngIf="isRegistered" class="nav-item cursor-pointer">
         <a routerLink="my-notes" routerLinkActive="active" class="nav-link">My Notes</a>
       </li>
       <li *ngIf="isAdmin" class="nav-item cursor-pointer">
         <a routerLink="retro" routerLinkActive="active" class="nav-link">Retro</a>
+      </li>
+      <li *ngIf="isRegistered" class="nav-item cursor-pointer">
+        <a routerLink="old-retros" routerLinkActive="active" class="nav-link">Old Retros</a>
       </li>
       <li *ngIf="isAdmin" class="nav-item cursor-pointer">
         <a routerLink="administration" routerLinkActive="active" class="nav-link">Administration</a>

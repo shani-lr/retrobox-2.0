@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AdministrationComponent } from './administration/administration.component';
+import { AdministrationComponent } from './administration.component';
 
 @NgModule({
   imports: [

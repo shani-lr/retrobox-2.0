@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { Subscription } from 'rxjs/Subscription';
 import { DragulaService } from 'ng2-dragula';
 import 'rxjs/add/operator/map';
@@ -14,14 +14,16 @@ import { AppUser } from '../core/models/user.model';
   viewProviders: [DragulaService]
 })
 export class RetroComponent implements OnInit, OnDestroy {
+  @Input() oldSprint: string;
+  @Output() goBack = new EventEmitter();
   notesByGroups: { group: string, notes: Note[] }[] = [];
-  notes: Note[];
+  sprint = '';
+  private notes: Note[];
   private user: AppUser;
-  private sprint = '';
   private userSubscription: Subscription;
   private teamSubscription: Subscription;
   private dragulaSubscription: Subscription;
-  private teamData: { sprints: string[] };
+  private team: { sprints: string[] };
 
   constructor(private dragulaService: DragulaService, private dataService: DataService) {
   }
@@ -30,14 +32,14 @@ export class RetroComponent implements OnInit, OnDestroy {
     this.configureDragula();
 
     this.userSubscription =
-      this.dataService.getAppUser().subscribe(user => {
+      this.dataService.getUser().subscribe(user => {
       this.user = user;
       this.teamSubscription = this.dataService.getTeam(this.user.team)
         .subscribe((doc: {sprints: string[]}) => {
-          this.teamData = doc;
-          if (this.teamData.sprints) {
-            this.sprint = this.teamData.sprints[this.teamData.sprints.length - 1];
-            this.notes = this.teamData && this.teamData[this.sprint] ? this.teamData[this.sprint] : [];
+          this.team = doc;
+          if (this.team.sprints) {
+            this.sprint = this.oldSprint ? this.oldSprint : this.team.sprints[this.team.sprints.length - 1];
+            this.notes = this.team && this.team[this.sprint] ? this.team[this.sprint] : [];
             this.notesByGroups = [];
             this.mapNotesToGroups();
           }
@@ -77,8 +79,8 @@ export class RetroComponent implements OnInit, OnDestroy {
         note.group = title;
       }
     });
-    this.teamData[this.sprint] = this.notes;
-    this.dataService.updateTeam(this.user.team, this.teamData);
+    this.team[this.sprint] = this.notes;
+    this.dataService.updateTeam(this.user.team, this.team);
   }
 
   mapNotesToGroups() {

@@ -6,7 +6,7 @@ import { AuthService } from '../auth.service';
 
 @Component({
   selector: 'app-login',
-  template: `<app-error-page [errorMessage]="'You need to be logged in to view notes.'"></app-error-page>`,
+  template: `<app-error-page [errorMessage]="'Please login to use the app.'"></app-error-page>`,
 })
 export class LoginComponent implements OnInit, OnDestroy {
   private userSubscription: Subscription;

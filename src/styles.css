@@ -3,7 +3,7 @@ html, body {
   font-family: 'Indie Flower', cursive;
 }
 
-.my-notes .card, .retro .card {
+.my-notes .card, .grid .card {
   width: 13em;
   height: 13em;
   background-color: cornsilk;

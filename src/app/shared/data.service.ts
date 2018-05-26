@@ -58,7 +58,7 @@ export class DataService {
     return this.db.collection('app').doc(name).set(value);
   }
 
-  getAppUser() {
+  getUser() {
     return Observable.zip(this.appDoc.valueChanges(), this.authService.authState, (appDoc: App, user: User) => ({ appDoc, user }))
       .map(data => {
         if (data.appDoc && data.user) {

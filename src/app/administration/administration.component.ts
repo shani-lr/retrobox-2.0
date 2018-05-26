@@ -2,8 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs/Subscription';
 
-import { DataService } from '../../shared/data.service';
-import { AppUser } from '../../core/models/user.model';
+import { DataService } from '../shared/data.service';
+import { AppUser } from '../core/models/user.model';
 
 @Component({
   selector: 'app-administration',
@@ -20,7 +20,7 @@ export class AdministrationComponent implements OnInit {
   constructor(private dataService: DataService, private router: Router) { }
 
   ngOnInit() {
-    this.userSubscription = this.dataService.getAppUser().subscribe(user => {
+    this.userSubscription = this.dataService.getUser().subscribe(user => {
       this.user = user;
       this.teamSubscription = this.dataService.getTeam(this.user.team)
         .subscribe((doc: {sprints: string[]}) => {
