@@ -14,6 +14,7 @@
   right: 1.8em;
   color: mediumseagreen;
   font-size: 1.5em;
+  cursor: pointer;
 }
 
 .cancel {
@@ -22,6 +23,16 @@
   right: 0.5em;
   color: indianred;
   font-size: 1.5em;
+  cursor: pointer;
+}
+
+.delete {
+  position: absolute;
+  bottom: 0.1em;
+  right: 0.5em;
+  color: dimgrey;
+  font-size: 1.5em;
+  cursor: pointer;
 }
 
 .card-title {

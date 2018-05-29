@@ -54,6 +54,15 @@ export class MyNotesComponent implements OnInit, OnDestroy {
     this.newNote = '';
   }
 
+  onDelete(note: Note) {
+    const noteToDeleteIndex =
+      this.notes.findIndex(x => x.by === this.user.name && x.at === note.at && x.text === note.text);
+    this.notes.splice(noteToDeleteIndex, 1);
+    this.teamData[this.sprint] = this.notes;
+    this.dataService.updateTeam(this.user.team, this.teamData);
+    this.newNote = '';
+  }
+
   ngOnDestroy() {
     this.userSubscription.unsubscribe();
     if (this.teamSubscription) {
