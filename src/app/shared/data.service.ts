@@ -22,7 +22,7 @@ export class DataService {
         let result = false;
         if (data.appDoc && data.user) {
           const appUser = data.appDoc.users.find(
-            x => x.name.toLowerCase() === data.user.displayName.toLowerCase());
+            x => x.name === data.user.displayName);
           result = !!appUser;
         }
         return result;
@@ -35,11 +35,13 @@ export class DataService {
         let result = false;
         if (data.appDoc && data.user) {
           const appUser = data.appDoc.users.find(
-            x => x.name.toLowerCase() === data.user.displayName.toLowerCase());
+            x => x.name === data.user.displayName);
           if (appUser) {
             const team = data.appDoc.teams.find(
-              x => x.name.toLowerCase() === appUser.team.toLowerCase());
-            result = team && data.user.displayName === team.admin;
+              x => x.name === appUser.team);
+            if (team) {
+              result = team.admins.includes(appUser.name);
+            }
           }
         }
         return result;
@@ -62,9 +64,8 @@ export class DataService {
     return Observable.zip(this.appDoc.valueChanges(), this.authService.authState, (appDoc: App, user: User) => ({ appDoc, user }))
       .map(data => {
         if (data.appDoc && data.user) {
-          const appUser = data.appDoc.users.find(
-            x => x.name.toLowerCase() === data.user.displayName.toLowerCase());
-          return appUser;
+          return data.appDoc.users.find(
+            x => x.name === data.user.displayName);
          }
       });
   }
@@ -75,5 +76,22 @@ export class DataService {
 
   updateTeam(teamName: string, team) {
     this.db.collection('app').doc(teamName).update(team);
+  }
+
+  getNonAdminTeamMembers() {
+    return Observable.zip(this.appDoc.valueChanges(), this.authService.authState, (appDoc: App, user: User) => ({ appDoc, user }))
+      .map(data => {
+        if (data.appDoc && data.user) {
+          const appUser = data.appDoc.users.find(
+            x => x.name === data.user.displayName);
+          if (appUser) {
+            const team = data.appDoc.teams.find(t => t.name === appUser.team);
+            return data.appDoc.users
+              .filter(user => user.team === appUser.team)
+              .map(user => user.name)
+              .filter(user => !team.admins.includes(user));
+          }
+        }
+      });
   }
 }

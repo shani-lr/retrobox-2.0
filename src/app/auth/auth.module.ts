@@ -1,6 +1,5 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { SharedModule } from '../shared/shared.module';
 import { LoginComponent } from './login/login.component';
@@ -14,7 +13,6 @@ import { LoginAdminComponent } from './login/login-admin.component';
 @NgModule({
   imports: [
     CommonModule,
-    NgbModule,
     SharedModule
   ],
   declarations: [

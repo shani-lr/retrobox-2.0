@@ -17,7 +17,7 @@ export class RegisterComponent implements OnInit, OnDestroy {
   team = '';
   teamToCreate: TeamExtended = {
     name: '',
-    admin: '',
+    admins: [],
     sprint: ''
   };
   createTeam = false;
@@ -26,18 +26,22 @@ export class RegisterComponent implements OnInit, OnDestroy {
   private appSubscription: Subscription;
   private userSubscription: Subscription;
 
-  constructor(private dataService: DataService, private authService: AuthService, private router: Router) { }
+  constructor(private dataService: DataService, private authService: AuthService, private router: Router) {
+  }
 
   ngOnInit() {
     this.userSubscription =
-      this.authService.authState.subscribe(res => this.user = res);
+      this.authService.authState.subscribe(res => {
+        this.user = res;
+        this.teamToCreate.admins = [this.user.displayName];
+      });
 
     this.appSubscription = this.dataService.getApplication()
       .subscribe((appDoc: App) => this.app = appDoc);
   }
 
   onCreateTeam() {
-    this.app.teams.push({name: this.teamToCreate.name, admin: this.teamToCreate.admin});
+    this.app.teams.push({name: this.teamToCreate.name, admins: this.teamToCreate.admins});
     this.dataService.updateApplication(this.app);
     const doc = {sprints: [this.teamToCreate.sprint]};
     doc[this.teamToCreate.sprint] = [];

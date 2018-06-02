@@ -1,6 +1,6 @@
 export interface Team {
   name: string;
-  admin: string;
+  admins: string[];
 }
 
 export interface TeamExtended extends Team {

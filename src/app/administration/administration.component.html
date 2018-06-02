@@ -9,8 +9,32 @@
     </div>
   </div>
   <div class="row">
-    <div class="col">
+    <div class="col-md-auto margin-bottom-1">
       <button class="btn btn-primary d-inline-block" (click)="createNewSprint()">Create new sprint</button>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-auto margin-bottom-1">
+      <button class="btn btn-primary d-inline-block" (click)="addAnotherAdmin = true">Add another admin</button>
+    </div>
+    <div *ngIf="addAnotherAdmin">
+      <div class="col-md-auto d-inline-block padding-right-0 margin-bottom-1">
+        <div class="d-inline-block center-vertically">Choose another admin:</div>
+      </div>
+      <div class="col-md-auto d-inline-block margin-bottom-1">
+        <div ngbDropdown class="d-inline-block">
+          <button class="btn btn-primary" id="dropdownBasic1" ngbDropdownToggle>
+            {{ newAdmin ? newAdmin : 'No user selected'}}
+          </button>
+          <div ngbDropdownMenu aria-labelledby="dropdownBasic1" class="dropdown-menu">
+            <button *ngFor="let teamMember of teamMembers" class="dropdown-item"
+                    (click)="newAdmin = teamMember">{{teamMember}}</button>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-auto d-inline-block" *ngIf="newAdmin">
+        <button class="btn btn-primary" (click)="onAddAnotherAdmin()"><i class="fas fa-plus-circle"></i> Add</button>
+      </div>
     </div>
   </div>
 </div>

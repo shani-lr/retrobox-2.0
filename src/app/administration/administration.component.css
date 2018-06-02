@@ -3,9 +3,33 @@
   outline: none;
 }
 
+.show>.btn-primary.dropdown-toggle:focus {
+  box-shadow: none;
+}
+
 .btn-primary:not(:disabled):not(.disabled):active:focus {
   box-shadow: none;
   outline: none;
+}
+
+button:focus {
+  outline: none;
+}
+
+.dropdown-item:active {
+  background: #b8daff;
+}
+
+#dropdownBasic1 {
+  border-radius: 3px;
+  width: 12em;
+}
+
+.dropdown-menu {
+  min-width: 0;
+  border-radius: 0;
+  border-color: #b8daff;
+  width: 12em;
 }
 
 .administration {
@@ -14,4 +38,8 @@
 
 .alert {
   text-align: center;
+}
+
+.margin-bottom-1 {
+  margin-bottom: 1em;
 }
