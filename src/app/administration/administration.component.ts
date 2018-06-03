@@ -17,20 +17,23 @@ export class AdministrationComponent implements OnInit, OnDestroy {
   addAnotherAdmin: boolean;
   newAdmin: string;
   teamMembers: string[];
+  message: string;
   private app: App;
   private team: { sprints: string[] };
   private userSubscription: Subscription;
   private teamSubscription: Subscription;
   private teamMembersSubscription: Subscription;
   private appSubscription: Subscription;
+  private updateApplicationSubscription: Subscription;
 
-  constructor(private dataService: DataService, private router: Router) { }
+  constructor(private dataService: DataService, private router: Router) {
+  }
 
   ngOnInit() {
     this.userSubscription = this.dataService.getUser().subscribe(user => {
       this.user = user;
       this.teamSubscription = this.dataService.getTeam(this.user.team)
-        .subscribe((doc: {sprints: string[]}) => {
+        .subscribe((doc: { sprints: string[] }) => {
           this.team = doc;
           if (this.team.sprints) {
             this.currentSprint = this.team.sprints[this.team.sprints.length - 1];
@@ -55,9 +58,30 @@ export class AdministrationComponent implements OnInit, OnDestroy {
     const teamIndex = this.app.teams.findIndex(x => x.name === this.user.team);
     const team = this.app.teams[teamIndex];
     team.admins.push(this.newAdmin);
+    team.admins = team.admins.filter(this.onlyUnique);
     this.app.teams.splice(teamIndex, 1);
     this.app.teams.push(team);
-    this.dataService.updateApplication(this.app);
+    this.updateApplicationSubscription =
+      this.dataService.updateApplication(this.app).subscribe(() => {
+        this.addAnotherAdmin = false;
+        this.message = `${this.newAdmin} was successfully added as admin!`;
+        this.newAdmin = '';
+        this.teamMembersSubscription.unsubscribe();
+        this.teamMembersSubscription = this.dataService.getNonAdminTeamMembers().subscribe(teamMembers => {
+          this.teamMembers = teamMembers;
+        });
+      });
+  }
+
+  removeDuplications() {
+    const teamIndex = this.app.teams.findIndex(x => x.name === this.user.team);
+    const team = this.app.teams[teamIndex];
+    team.admins = team.admins.filter(this.onlyUnique);
+    this.app.teams.splice(teamIndex, 1);
+    this.app.teams.push(team);
+    this.updateApplicationSubscription =
+      this.dataService.updateApplication(this.app).subscribe(() =>
+      this.message = 'Duplications were removed');
   }
 
   ngOnDestroy() {
@@ -67,5 +91,12 @@ export class AdministrationComponent implements OnInit, OnDestroy {
     }
     this.teamMembersSubscription.unsubscribe();
     this.appSubscription.unsubscribe();
+    if (this.updateApplicationSubscription) {
+      this.updateApplicationSubscription.unsubscribe();
+    }
+  }
+
+  private onlyUnique(value, index, self) {
+    return self.indexOf(value) === index;
   }
 }

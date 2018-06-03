@@ -3,6 +3,7 @@ import { AngularFirestore, AngularFirestoreDocument } from 'angularfire2/firesto
 import { Observable } from 'rxjs/Observable';
 import { User } from 'firebase';
 import 'rxjs/add/observable/zip';
+import 'rxjs/add/observable/from';
 import 'rxjs/add/operator/map';
 
 import { App } from '../core/models/app.model';
@@ -53,7 +54,7 @@ export class DataService {
   }
 
   updateApplication(updatedApplication: App) {
-    this.appDoc.update(updatedApplication);
+    return Observable.from(this.appDoc.update(updatedApplication));
   }
 
   createApplicationDocument(name: string, value: any): Promise<void> {

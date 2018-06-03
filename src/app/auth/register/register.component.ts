@@ -25,6 +25,7 @@ export class RegisterComponent implements OnInit, OnDestroy {
   private user: User;
   private appSubscription: Subscription;
   private userSubscription: Subscription;
+  private updateApplicationSubscriptions: Subscription[] = [];
 
   constructor(private dataService: DataService, private authService: AuthService, private router: Router) {
   }
@@ -42,7 +43,7 @@ export class RegisterComponent implements OnInit, OnDestroy {
 
   onCreateTeam() {
     this.app.teams.push({name: this.teamToCreate.name, admins: this.teamToCreate.admins});
-    this.dataService.updateApplication(this.app);
+    this.updateApplicationSubscriptions.push(this.dataService.updateApplication(this.app).subscribe());
     const doc = {sprints: [this.teamToCreate.sprint]};
     doc[this.teamToCreate.sprint] = [];
     this.dataService.createApplicationDocument(this.teamToCreate.name, doc)
@@ -54,12 +55,13 @@ export class RegisterComponent implements OnInit, OnDestroy {
 
   onJoinTeam() {
     this.app.users.push({name: this.user.displayName, team: this.team});
-    this.dataService.updateApplication(this.app);
+    this.updateApplicationSubscriptions.push(this.dataService.updateApplication(this.app).subscribe());
     this.router.navigate(['/my-notes']);
   }
 
   ngOnDestroy() {
     this.userSubscription.unsubscribe();
     this.appSubscription.unsubscribe();
+    this.updateApplicationSubscriptions.forEach(sub => sub.unsubscribe());
   }
 }
