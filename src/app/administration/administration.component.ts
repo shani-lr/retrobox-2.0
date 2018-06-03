@@ -73,17 +73,6 @@ export class AdministrationComponent implements OnInit, OnDestroy {
       });
   }
 
-  removeDuplications() {
-    const teamIndex = this.app.teams.findIndex(x => x.name === this.user.team);
-    const team = this.app.teams[teamIndex];
-    team.admins = team.admins.filter(this.onlyUnique);
-    this.app.teams.splice(teamIndex, 1);
-    this.app.teams.push(team);
-    this.updateApplicationSubscription =
-      this.dataService.updateApplication(this.app).subscribe(() =>
-      this.message = 'Duplications were removed');
-  }
-
   ngOnDestroy() {
     this.userSubscription.unsubscribe();
     if (this.teamSubscription) {
