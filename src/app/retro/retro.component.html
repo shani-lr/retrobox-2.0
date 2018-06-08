@@ -6,7 +6,7 @@
   </div>
   <div class="row" *ngIf="showAlertMessage">
     <div class="col">
-      <div class="alert alert-error" role="alert">
+      <div class="alert alert-warning" role="alert">
         <i class="fas fa-exclamation-triangle"></i> Please enter a group title before grouping notes.
       </div>
     </div>
@@ -28,7 +28,7 @@
   </div>
   <div class="row">
     <div class="col">
-      <button class="btn btn-info float-right" style="margin: 1em" *ngIf="oldSprint" (click)="goBack.emit()">
+      <button class="btn btn-info float-right margin-1" *ngIf="oldSprint" (click)="goBack.emit()">
         <i class="fas fa-arrow-circle-left"></i> Back
       </button>
     </div>

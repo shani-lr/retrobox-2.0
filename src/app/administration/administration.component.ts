@@ -1,5 +1,4 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
 import { Subscription } from 'rxjs/Subscription';
 
 import { DataService } from '../shared/data.service';
@@ -20,38 +19,37 @@ export class AdministrationComponent implements OnInit, OnDestroy {
   message: string;
   private app: App;
   private team: { sprints: string[] };
-  private userSubscription: Subscription;
-  private teamSubscription: Subscription;
-  private teamMembersSubscription: Subscription;
-  private appSubscription: Subscription;
-  private updateApplicationSubscription: Subscription;
+  private subscriptions: Subscription[] = [];
 
-  constructor(private dataService: DataService, private router: Router) {
+  constructor(private dataService: DataService) {
   }
 
   ngOnInit() {
-    this.userSubscription = this.dataService.getUser().subscribe(user => {
+    this.subscriptions.push(this.dataService.getUser().subscribe(user => {
       this.user = user;
-      this.teamSubscription = this.dataService.getTeam(this.user.team)
+      this.subscriptions.push(this.dataService.getTeam(this.user.team)
         .subscribe((doc: { sprints: string[] }) => {
           this.team = doc;
           if (this.team.sprints) {
             this.currentSprint = this.team.sprints[this.team.sprints.length - 1];
           }
-        });
-    });
-    this.teamMembersSubscription = this.dataService.getNonAdminTeamMembers().subscribe(teamMembers => {
+        }));
+    }));
+    this.subscriptions.push(this.dataService.getNonAdminTeamMembers().subscribe(teamMembers => {
       this.teamMembers = teamMembers;
-    });
-    this.appSubscription = this.dataService.getApplication().subscribe(app => this.app = app);
+    }));
+    this.subscriptions.push(this.dataService.getApplication().subscribe(app => this.app = app));
   }
 
   createNewSprint() {
     const newSprint = `${((+this.currentSprint) + 1)}`;
     this.team.sprints.push(newSprint);
     this.team[newSprint] = [];
-    this.dataService.updateTeam(this.user.team, this.team);
-    this.router.navigate(['/my-notes']);
+    this.subscriptions.push(
+      this.dataService.updateTeam(this.user.team, this.team).subscribe(() => {
+      this.message = `Sprint ${newSprint} was successfully added!`;
+      this.currentSprint = newSprint;
+    }));
   }
 
   onAddAnotherAdmin() {
@@ -61,28 +59,18 @@ export class AdministrationComponent implements OnInit, OnDestroy {
     team.admins = team.admins.filter(this.onlyUnique);
     this.app.teams.splice(teamIndex, 1);
     this.app.teams.push(team);
-    this.updateApplicationSubscription =
-      this.dataService.updateApplication(this.app).subscribe(() => {
+    this.subscriptions.push(this.dataService.updateApplication(this.app).subscribe(() => {
         this.addAnotherAdmin = false;
         this.message = `${this.newAdmin} was successfully added as admin!`;
         this.newAdmin = '';
-        this.teamMembersSubscription.unsubscribe();
-        this.teamMembersSubscription = this.dataService.getNonAdminTeamMembers().subscribe(teamMembers => {
+        this.subscriptions.push(this.dataService.getNonAdminTeamMembers().subscribe(teamMembers => {
           this.teamMembers = teamMembers;
-        });
-      });
+        }));
+      }));
   }
 
   ngOnDestroy() {
-    this.userSubscription.unsubscribe();
-    if (this.teamSubscription) {
-      this.teamSubscription.unsubscribe();
-    }
-    this.teamMembersSubscription.unsubscribe();
-    this.appSubscription.unsubscribe();
-    if (this.updateApplicationSubscription) {
-      this.updateApplicationSubscription.unsubscribe();
-    }
+    this.subscriptions.forEach(subscription => subscription.unsubscribe());
   }
 
   private onlyUnique(value, index, self) {

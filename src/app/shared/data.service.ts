@@ -76,7 +76,7 @@ export class DataService {
   }
 
   updateTeam(teamName: string, team) {
-    this.db.collection('app').doc(teamName).update(team);
+    return Observable.from(this.db.collection('app').doc(teamName).update(team));
   }
 
   getNonAdminTeamMembers() {

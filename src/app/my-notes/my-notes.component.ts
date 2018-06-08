@@ -18,16 +18,15 @@ export class MyNotesComponent implements OnInit, OnDestroy {
   private user: AppUser;
   private sprint = '';
   private teamData;
-  private teamSubscription: Subscription;
-  private userSubscription: Subscription;
+  private subscriptions: Subscription[] = [];
 
   constructor(private datePipe: DatePipe, private dataService: DataService) {
   }
 
   ngOnInit() {
-    this.userSubscription = this.dataService.getUser().subscribe(user => {
+    this.subscriptions.push(this.dataService.getUser().subscribe(user => {
       this.user = user;
-      this.teamSubscription = this.dataService.getTeam(this.user.team)
+      this.subscriptions.push(this.dataService.getTeam(this.user.team)
         .subscribe((doc: {sprints: string[]}) => {
           this.teamData = doc;
           if (this.teamData.sprints) {
@@ -36,8 +35,8 @@ export class MyNotesComponent implements OnInit, OnDestroy {
             this.myNotes =
               this.teamData && this.teamData[this.sprint] ? this.teamData[this.sprint].filter(note => note.by === this.user.name) : [];
           }
-        });
-    });
+        }));
+    }));
   }
 
   onSave() {
@@ -45,7 +44,8 @@ export class MyNotesComponent implements OnInit, OnDestroy {
       const date = this.datePipe.transform(new Date(), 'MMM d');
       this.notes.push({ text: this.newNote, by: this.user.name, group: '', at: date});
       this.teamData[this.sprint] = this.notes;
-      this.dataService.updateTeam(this.user.team, this.teamData);
+      this.subscriptions.push(
+        this.dataService.updateTeam(this.user.team, this.teamData).subscribe());
       this.newNote = '';
     }
   }
@@ -59,14 +59,12 @@ export class MyNotesComponent implements OnInit, OnDestroy {
       this.notes.findIndex(x => x.by === this.user.name && x.at === note.at && x.text === note.text);
     this.notes.splice(noteToDeleteIndex, 1);
     this.teamData[this.sprint] = this.notes;
-    this.dataService.updateTeam(this.user.team, this.teamData);
+    this.subscriptions.push(
+      this.dataService.updateTeam(this.user.team, this.teamData).subscribe());
     this.newNote = '';
   }
 
   ngOnDestroy() {
-    this.userSubscription.unsubscribe();
-    if (this.teamSubscription) {
-      this.teamSubscription.unsubscribe();
-    }
+    this.subscriptions.forEach(subscription => subscription.unsubscribe());
   }
 }

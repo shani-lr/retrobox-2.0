@@ -21,10 +21,8 @@ export class RetroComponent implements OnInit, OnDestroy {
   showAlertMessage: boolean;
   private notes: Note[];
   private user: AppUser;
-  private userSubscription: Subscription;
-  private teamSubscription: Subscription;
-  private dragulaSubscription: Subscription;
   private team: { sprints: string[] };
+  private subscriptions: Subscription[] = [];
 
   constructor(private dragulaService: DragulaService, private dataService: DataService) {
   }
@@ -32,10 +30,10 @@ export class RetroComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.configureDragula();
 
-    this.userSubscription =
+    this.subscriptions.push(
       this.dataService.getUser().subscribe(user => {
         this.user = user;
-        this.teamSubscription = this.dataService.getTeam(this.user.team)
+        this.subscriptions.push(this.dataService.getTeam(this.user.team)
           .subscribe((doc: { sprints: string[] }) => {
             this.team = doc;
             if (this.team.sprints) {
@@ -44,8 +42,8 @@ export class RetroComponent implements OnInit, OnDestroy {
               this.notesByGroups = [];
               this.mapNotesToGroups();
             }
-          });
-      });
+          }));
+      }));
   }
 
   private configureDragula() {
@@ -64,18 +62,19 @@ export class RetroComponent implements OnInit, OnDestroy {
             return false;
           }
         }
+        this.showAlertMessage = false;
         return true;
       }.bind(this)
     });
 
-    this.dragulaSubscription =
+    this.subscriptions.push(
       this.dragulaService.drop.subscribe((value) => {
         const destination = value[2];
         const source = value[3];
         const inputTitle = destination.children[0];
         this.removeGroup(source);
         this.saveGroup(inputTitle);
-      });
+      }));
   }
 
   removeGroup(group) {
@@ -95,7 +94,9 @@ export class RetroComponent implements OnInit, OnDestroy {
       }
     });
     this.team[this.sprint] = this.notes;
-    this.dataService.updateTeam(this.user.team, this.team);
+    this.subscriptions.push(
+      this.dataService.updateTeam(this.user.team, this.team).subscribe());
+    this.showAlertMessage = false;
   }
 
   mapNotesToGroups() {
@@ -121,10 +122,6 @@ export class RetroComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.dragulaSubscription.unsubscribe();
-    this.userSubscription.unsubscribe();
-    if (this.teamSubscription) {
-      this.teamSubscription.unsubscribe();
-    }
+    this.subscriptions.forEach(subscription => subscription.unsubscribe());
   }
 }
