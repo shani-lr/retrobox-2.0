@@ -4,6 +4,13 @@
       <h3>Sprint {{sprint}}</h3>
     </div>
   </div>
+  <div class="row" *ngIf="showAlertMessage">
+    <div class="col">
+      <div class="alert alert-error" role="alert">
+        <i class="fas fa-exclamation-triangle"></i> Please enter a group title before grouping notes.
+      </div>
+    </div>
+  </div>
   <div class="row grid">
     <div class="col-md-auto container" *ngFor="let group of notesByGroups" [dragula]='"first-bag"'>
       <input type="text" placeholder="Add title..."
