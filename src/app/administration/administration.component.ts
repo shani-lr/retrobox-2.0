@@ -17,8 +17,9 @@ export class AdministrationComponent implements OnInit, OnDestroy {
   newAdmin: string;
   teamMembers: string[];
   message: string;
+  isVotingOn: boolean;
   private app: App;
-  private team: { sprints: string[] };
+  private team: { sprints: string[], vote: any[] };
   private subscriptions: Subscription[] = [];
 
   constructor(private dataService: DataService) {
@@ -28,7 +29,7 @@ export class AdministrationComponent implements OnInit, OnDestroy {
     this.subscriptions.push(this.dataService.getUser().subscribe(user => {
       this.user = user;
       this.subscriptions.push(this.dataService.getTeam(this.user.team)
-        .subscribe((doc: { sprints: string[] }) => {
+        .subscribe((doc: { sprints: string[], vote: any[] }) => {
           this.team = doc;
           if (this.team.sprints) {
             this.currentSprint = this.team.sprints[this.team.sprints.length - 1];
@@ -39,6 +40,7 @@ export class AdministrationComponent implements OnInit, OnDestroy {
       this.teamMembers = teamMembers;
     }));
     this.subscriptions.push(this.dataService.getApplication().subscribe(app => this.app = app));
+    this.subscriptions.push(this.dataService.isVotingOn().subscribe(isVotingOn => this.isVotingOn = isVotingOn));
   }
 
   createNewSprint() {
@@ -69,11 +71,32 @@ export class AdministrationComponent implements OnInit, OnDestroy {
       }));
   }
 
+  openVote() {
+    this.changeVotingState(true, 'Voting is open!');
+    this.team.vote = [];
+    this.subscriptions.push(this.dataService.updateTeam(this.user.team, this.team).subscribe());
+  }
+
+  closeVote() {
+    this.changeVotingState(false, 'Voting is closed.');
+  }
+
   ngOnDestroy() {
     this.subscriptions.forEach(subscription => subscription.unsubscribe());
   }
 
   private onlyUnique(value, index, self) {
     return self.indexOf(value) === index;
+  }
+
+  private changeVotingState(on: boolean, message: string) {
+    const teamIndex = this.app.teams.findIndex(x => x.name === this.user.team);
+    const team = this.app.teams[teamIndex];
+    team.vote = on;
+    this.app.teams.splice(teamIndex, 1);
+    this.app.teams.push(team);
+    this.subscriptions.push(this.dataService.updateApplication(this.app).subscribe(() => {
+      this.message = message;
+    }));
   }
 }

@@ -1,4 +1,5 @@
 export interface Team {
+  vote: boolean;
   name: string;
   admins: string[];
 }

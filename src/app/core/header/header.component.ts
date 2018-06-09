@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Router} from '@angular/router';
+import { Router } from '@angular/router';
 
 import { AuthService } from '../../auth/auth.service';
 import { DataService } from '../../shared/data.service';
@@ -14,16 +14,23 @@ export class HeaderComponent implements OnInit, OnDestroy {
   isLoggedIn: boolean;
   isAdmin: boolean;
   isRegistered: boolean;
+  isVotingOn: boolean;
   private subscriptions: Subscription[] = [];
 
-  constructor(private authService: AuthService, private dataService: DataService, private router: Router) { }
+  constructor(private authService: AuthService, private dataService: DataService, private router: Router) {
+  }
 
   ngOnInit() {
-    this.subscriptions.push(this.authService.isLoggedIn().subscribe((isLoggedIn: boolean) => {
-        this.isLoggedIn = isLoggedIn;
-        this.subscriptions.push(this.dataService.isAdmin().subscribe((isAdmin: boolean) => this.isAdmin = isAdmin));
-        this.subscriptions.push(this.dataService.isRegistered().subscribe((isRegistered: boolean) => this.isRegistered = isRegistered));
-      }));
+    this.subscriptions.push(
+      this.authService.isLoggedIn().subscribe((isLoggedIn: boolean) => {
+      this.isLoggedIn = isLoggedIn;
+      this.subscriptions.push(
+        this.dataService.isAdmin().subscribe((isAdmin: boolean) => this.isAdmin = isAdmin));
+      this.subscriptions.push(
+        this.dataService.isRegistered().subscribe((isRegistered: boolean) => this.isRegistered = isRegistered));
+      this.subscriptions.push(
+        this.dataService.isVotingOn().subscribe((isVotingOn: boolean) => this.isVotingOn = isVotingOn));
+    }));
   }
 
   login() {

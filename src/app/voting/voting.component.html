@@ -1,0 +1,37 @@
+<div class="voting" style="margin: 2em">
+  <div *ngIf="!voted">
+    <div class="row">
+      <div class="col">
+        <div class="alert alert-info" role="alert">
+          <i class="fas fa-info-circle"></i> You have 3 votes, use them to vote on the issues matter to you!
+        </div>
+      </div>
+    </div>
+    <div class="row" *ngIf="showErrorMessage">
+      <div class="col">
+        <div class="alert alert-danger" role="alert">
+          <i class="fas fa-exclamation-circle"></i> You have already used up all your votes.
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md" *ngFor="let notesByGroup of notesByGroups" style="margin: 1em 0">
+        <button class="btn btn-outline-info" style="width: 15em; text-align: left" (click)="addVote(notesByGroup)">{{notesByGroup.group}}</button>
+        <button *ngIf="notesByGroup.votes" class="btn btn-info" [disabled]="true">{{notesByGroup.votes}}</button>
+      </div>
+    </div>
+    <div class="row" style="margin-top: 2em; text-align: center">
+      <div class="col">
+        <button class="btn btn-danger" (click)="onDiscard()"><i class="fas fa-ban" style="font-size: 0.9em"></i> Discard</button>
+        <button class="btn btn-success" (click)="onVote()"><i class="fas fa-volume-up" style="font-size: 0.9em"></i> Vote</button>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col" *ngIf="voted">
+      <div class="alert alert-success" role="alert">
+        <i class="fas fa-check-circle"></i> Your vote was submitted successfully!
+      </div>
+    </div>
+  </div>
+</div>

@@ -11,6 +11,9 @@
       <li *ngIf="isAdmin" class="nav-item cursor-pointer">
         <a routerLink="retro" routerLinkActive="active" class="nav-link">Retro</a>
       </li>
+      <li *ngIf="isVotingOn" class="nav-item cursor-pointer">
+        <a routerLink="vote" routerLinkActive="active" class="nav-link">Vote</a>
+      </li>
       <li *ngIf="isRegistered" class="nav-item cursor-pointer">
         <a routerLink="old-retros" routerLinkActive="active" class="nav-link">Old Retros</a>
       </li>

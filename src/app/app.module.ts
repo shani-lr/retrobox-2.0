@@ -12,7 +12,7 @@ import { AuthModule } from './auth/auth.module';
 import { MyNotesModule } from './my-notes/my-notes.module';
 import { RetroModule } from './retro/retro.module';
 import { AdministrationModule } from './administration/administration.module';
-
+import { VotingModule } from './voting/voting.module';
 
 @NgModule({
   declarations: [
@@ -25,6 +25,7 @@ import { AdministrationModule } from './administration/administration.module';
     MyNotesModule,
     RetroModule,
     AdministrationModule,
+    VotingModule,
     AngularFireModule.initializeApp(environment.firebase),
     AngularFirestoreModule,
     AngularFireAuthModule,

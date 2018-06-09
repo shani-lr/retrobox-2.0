@@ -12,6 +12,8 @@ import { AdminGuard } from './auth/guards/admin.guard';
 import { LoginAdminComponent } from './auth/login/login-admin.component';
 import { AdministrationComponent } from './administration/administration.component';
 import { OldRetrosComponent } from './retro/old-retros/old-retros.component';
+import { VotingComponent } from './voting/voting.component';
+import { VotingGuard } from './voting/voting.guard';
 
 const appRoutes: Routes = [
   { path: '', component: HomeComponent },
@@ -20,6 +22,7 @@ const appRoutes: Routes = [
   { path: 'register', component: RegisterComponent, canActivate: [AuthenticationGuard] },
   { path: 'my-notes', component: MyNotesComponent, canActivate: [AuthenticationGuard, AuthorizationGuard] },
   { path: 'retro', component: RetroComponent, canActivate: [AuthenticationGuard, AuthorizationGuard, AdminGuard] },
+  { path: 'vote', component: VotingComponent, canActivate: [AuthenticationGuard, AuthorizationGuard, VotingGuard] },
   { path: 'old-retros', component: OldRetrosComponent, canActivate: [AuthenticationGuard, AuthorizationGuard] },
   { path: 'administration', component: AdministrationComponent, canActivate: [AuthenticationGuard, AuthorizationGuard, AdminGuard] },
   { path: '**', redirectTo: '', pathMatch: 'full' },

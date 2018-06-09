@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { AngularFirestore, AngularFirestoreDocument } from 'angularfire2/firestore';
 import { Observable } from 'rxjs/Observable';
 import { User } from 'firebase';
-import 'rxjs/add/observable/zip';
+import 'rxjs/add/observable/combineLatest';
 import 'rxjs/add/observable/from';
 import 'rxjs/add/operator/map';
 
@@ -18,7 +18,7 @@ export class DataService {
   }
 
   isRegistered(): Observable<boolean> {
-    return Observable.zip(this.appDoc.valueChanges(), this.authService.authState, (appDoc: App, user: User) => ({ appDoc, user }))
+    return Observable.combineLatest(this.appDoc.valueChanges(), this.authService.authState, (appDoc: App, user: User) => ({ appDoc, user }))
       .map(data => {
         let result = false;
         if (data.appDoc && data.user) {
@@ -31,7 +31,7 @@ export class DataService {
   }
 
   isAdmin(): Observable<boolean> {
-    return Observable.zip(this.appDoc.valueChanges(), this.authService.authState, (appDoc: App, user: User) => ({ appDoc, user }))
+    return Observable.combineLatest(this.appDoc.valueChanges(), this.authService.authState, (appDoc: App, user: User) => ({ appDoc, user }))
       .map(data => {
         let result = false;
         if (data.appDoc && data.user) {
@@ -49,6 +49,26 @@ export class DataService {
       });
   }
 
+  isVotingOn(): Observable<boolean> {
+    return Observable.combineLatest(this.appDoc.valueChanges(), this.authService.authState, (appDoc: App, user: User) => ({ appDoc, user }))
+      .map(data => {
+        let result = false;
+        if (data.appDoc && data.user) {
+          const appUser = data.appDoc.users.find(
+            x => x.name === data.user.displayName);
+          if (appUser) {
+            const team = data.appDoc.teams.find(
+              x => x.name === appUser.team);
+            if (team && team.vote) {
+              result = true;
+            }
+          }
+        }
+        return result;
+      });
+  }
+
+
   getApplication(): Observable<App> {
     return this.appDoc.valueChanges();
   }
@@ -62,7 +82,7 @@ export class DataService {
   }
 
   getUser() {
-    return Observable.zip(this.appDoc.valueChanges(), this.authService.authState, (appDoc: App, user: User) => ({ appDoc, user }))
+    return Observable.combineLatest(this.appDoc.valueChanges(), this.authService.authState, (appDoc: App, user: User) => ({ appDoc, user }))
       .map(data => {
         if (data.appDoc && data.user) {
           return data.appDoc.users.find(
@@ -80,7 +100,7 @@ export class DataService {
   }
 
   getNonAdminTeamMembers() {
-    return Observable.zip(this.appDoc.valueChanges(), this.authService.authState, (appDoc: App, user: User) => ({ appDoc, user }))
+    return Observable.combineLatest(this.appDoc.valueChanges(), this.authService.authState, (appDoc: App, user: User) => ({ appDoc, user }))
       .map(data => {
         if (data.appDoc && data.user) {
           const appUser = data.appDoc.users.find(

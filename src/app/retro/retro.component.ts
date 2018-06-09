@@ -39,7 +39,6 @@ export class RetroComponent implements OnInit, OnDestroy {
             if (this.team.sprints) {
               this.sprint = this.oldSprint ? this.oldSprint : this.team.sprints[this.team.sprints.length - 1];
               this.notes = this.team && this.team[this.sprint] ? this.team[this.sprint] : [];
-              this.notesByGroups = [];
               this.mapNotesToGroups();
             }
           }));
@@ -99,7 +98,12 @@ export class RetroComponent implements OnInit, OnDestroy {
     this.showAlertMessage = false;
   }
 
-  mapNotesToGroups() {
+  ngOnDestroy() {
+    this.subscriptions.forEach(subscription => subscription.unsubscribe());
+  }
+
+  private mapNotesToGroups() {
+    this.notesByGroups = [];
     this.notes.map(note => {
       if (!note.group) {
         this.notesByGroups.push({
@@ -119,9 +123,5 @@ export class RetroComponent implements OnInit, OnDestroy {
         }
       }
     });
-  }
-
-  ngOnDestroy() {
-    this.subscriptions.forEach(subscription => subscription.unsubscribe());
   }
 }
