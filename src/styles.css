@@ -16,3 +16,12 @@ html, body {
 .outline-none {
   outline: none;
 }
+
+.vote-results .ngx-charts-outer.ng-trigger.ng-trigger-animationState {
+  width: 100% !important;
+}
+
+.vote-results svg {
+  width: 100%;
+  margin: 2em calc(50% - 500px);
+}

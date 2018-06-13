@@ -47,6 +47,7 @@
     <div class="col-md-auto margin-bottom-1">
       <button *ngIf="!isVotingOn" class="btn btn-primary d-inline-block" (click)="openVote()">Open Vote!</button>
       <button *ngIf="isVotingOn" class="btn btn-primary d-inline-block" (click)="closeVote()">Close Vote</button>
+      <button class="btn btn-primary d-inline-block" (click)="onShowResults()">Show last vote results</button>
     </div>
   </div>
 </div>

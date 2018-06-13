@@ -12,7 +12,7 @@ import { AuthModule } from './auth/auth.module';
 import { MyNotesModule } from './my-notes/my-notes.module';
 import { RetroModule } from './retro/retro.module';
 import { AdministrationModule } from './administration/administration.module';
-import { VotingModule } from './voting/voting.module';
+import { VotingModule } from './vote/voting.module';
 
 @NgModule({
   declarations: [

@@ -1,4 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { Subscription } from 'rxjs/Subscription';
 
 import { DataService } from '../shared/data.service';
@@ -22,7 +23,7 @@ export class AdministrationComponent implements OnInit, OnDestroy {
   private team: { sprints: string[], vote: any[] };
   private subscriptions: Subscription[] = [];
 
-  constructor(private dataService: DataService) {
+  constructor(private dataService: DataService, private router: Router) {
   }
 
   ngOnInit() {
@@ -98,5 +99,9 @@ export class AdministrationComponent implements OnInit, OnDestroy {
     this.subscriptions.push(this.dataService.updateApplication(this.app).subscribe(() => {
       this.message = message;
     }));
+  }
+
+  onShowResults() {
+    this.router.navigate(['vote-results']);
   }
 }

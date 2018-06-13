@@ -1,9 +1,9 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-
 import { Subscription } from 'rxjs/Subscription';
-import { DataService } from '../shared/data.service';
-import { AppUser } from '../core/models/user.model';
-import { Note } from '../core/models/note.model';
+
+import { DataService } from '../../shared/data.service';
+import { AppUser } from '../../core/models/user.model';
+import { Note } from '../../core/models/note.model';
 
 @Component({
   selector: 'app-voting',
