@@ -13,13 +13,14 @@ import { Note } from '../../core/models/note.model';
 export class VotingComponent implements OnInit, OnDestroy {
   showErrorMessage: boolean;
   voted: boolean;
+  notesByItems: { item: string, notes: Note[], votes: number }[] = [];
   private totalVotes = 3;
-  private subscriptions: Subscription[] = [];
   private user: AppUser;
-  private team: { sprints: string[], vote: [{ group: string, votes: number, user: string }] };
+  private team: { sprints: string[], vote: [{ item: string, votes: number, user: string }] };
   private sprint = '';
   private notes: Note[];
-  private notesByGroups: { group: string, notes: Note[], votes: number }[] = [];
+  private voteType: string;
+  private subscriptions: Subscription[] = [];
 
   constructor(private dataService: DataService) {
   }
@@ -28,21 +29,23 @@ export class VotingComponent implements OnInit, OnDestroy {
     this.subscriptions.push(
       this.dataService.getUser().subscribe(user => {
         this.user = user;
+        this.subscriptions.push(this.dataService.getVoteType().subscribe(voteType => this.voteType = voteType));
         this.subscriptions.push(this.dataService.getTeam(this.user.team)
-          .subscribe((doc: { sprints: string[], vote: [{ group: string, votes: number, user: string }] }) => {
+          .subscribe((doc: { sprints: string[], vote: [{ item: string, votes: number, user: string }] }) => {
             this.team = doc;
             if (this.team.sprints) {
               this.sprint = this.team.sprints[this.team.sprints.length - 1];
               this.notes = this.team && this.team[this.sprint] ? this.team[this.sprint] : [];
-              this.mapNotesToGroups();
+              this.notesByItems = [];
+              this.mapNotesToItems();
             }
           }));
       }));
   }
 
-  addVote(notesByGroup: { group: string; notes: Note[]; votes: number }) {
+  addVote(notesByItem: { item: string; notes: Note[]; votes: number }) {
     if (this.totalVotes) {
-      notesByGroup.votes = notesByGroup.votes + 1;
+      notesByItem.votes = notesByItem.votes + 1;
       this.totalVotes = this.totalVotes - 1;
     } else {
       this.showErrorMessage = true;
@@ -50,15 +53,15 @@ export class VotingComponent implements OnInit, OnDestroy {
   }
 
   onDiscard() {
-    this.notesByGroups.forEach(noteByGroup => noteByGroup.votes = 0);
+    this.notesByItems.forEach(noteByItem => noteByItem.votes = 0);
     this.totalVotes = 3;
     this.showErrorMessage = false;
   }
 
   onVote() {
-    this.notesByGroups.forEach(noteByGroup => {
-      if (noteByGroup.votes) {
-        this.team.vote.push({group: noteByGroup.group, votes: noteByGroup.votes, user: this.user.name});
+    this.notesByItems.forEach(noteByItem => {
+      if (noteByItem.votes) {
+        this.team.vote.push({item: noteByItem.item, votes: noteByItem.votes, user: this.user.name});
       }
     });
     this.subscriptions.push(this.dataService.updateTeam(this.user.team, this.team).subscribe(() => this.voted = true));
@@ -68,21 +71,31 @@ export class VotingComponent implements OnInit, OnDestroy {
     this.subscriptions.forEach(subscription => subscription.unsubscribe());
   }
 
-  private mapNotesToGroups() {
-    this.notes.map(note => {
-      if (note.group) {
-        const groupIndex = this.notesByGroups.map(x => x.group).indexOf(note.group);
-        if (groupIndex > -1) {
-          this.notesByGroups[groupIndex].notes.push(
-            {text: note.text, by: note.by, group: note.group, at: note.at});
-        } else {
-          this.notesByGroups.push({
-            group: note.group,
-            notes: [{text: note.text, by: note.by, group: note.group, at: note.at}],
-            votes: 0
-          });
+  private mapNotesToItems() {
+    if (this.voteType === 'category') {
+      this.notes.map(note => {
+        if (note.group) {
+          const groupIndex = this.notesByItems.map(x => x.item).indexOf(note.group);
+          if (groupIndex > -1) {
+            this.notesByItems[groupIndex].notes.push(
+              {text: note.text, by: note.by, group: note.group, at: note.at});
+          } else {
+            this.notesByItems.push({
+              item: note.group,
+              notes: [{text: note.text, by: note.by, group: note.group, at: note.at}],
+              votes: 0
+            });
+          }
         }
-      }
-    });
+      });
+    } else {
+      this.notes.map(note => {
+        this.notesByItems.push({
+          item: `${note.text.substring(0, 30)}${note.text.length > 30 ? '...' : ''}`,
+          notes: [{text: note.text, by: note.by, group: note.group, at: note.at}],
+          votes: 0
+        });
+      });
+    }
   }
 }

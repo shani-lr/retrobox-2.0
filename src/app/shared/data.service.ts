@@ -115,4 +115,24 @@ export class DataService {
         }
       });
   }
+
+  getVoteType(): Observable<string> {
+    return Observable.combineLatest(this.appDoc.valueChanges(), this.authService.authState, (appDoc: App, user: User) => ({ appDoc, user }))
+      .map(data => {
+        let result = '';
+        if (data.appDoc && data.user) {
+          const appUser = data.appDoc.users.find(
+            x => x.name === data.user.displayName);
+          if (appUser) {
+            const team = data.appDoc.teams.find(
+              x => x.name === appUser.team);
+            if (team && team.vote) {
+              result = team.voteType;
+            }
+          }
+        }
+        return result;
+      });
+  }
+
 }

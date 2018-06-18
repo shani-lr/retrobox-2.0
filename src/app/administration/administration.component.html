@@ -45,7 +45,8 @@
   </div>
   <div class="row">
     <div class="col-md-auto margin-bottom-1">
-      <button *ngIf="!isVotingOn" class="btn btn-primary d-inline-block" (click)="openVote()">Open Vote!</button>
+      <button *ngIf="!isVotingOn" class="btn btn-primary d-inline-block" (click)="openVoteCategories()">Open Vote (categories)</button>
+      <button *ngIf="!isVotingOn" class="btn btn-primary d-inline-block" (click)="openVoteNotes()">Open Vote (notes)</button>
       <button *ngIf="isVotingOn" class="btn btn-primary d-inline-block" (click)="closeVote()">Close Vote</button>
       <button class="btn btn-primary d-inline-block" (click)="onShowResults()">Show last vote results</button>
     </div>

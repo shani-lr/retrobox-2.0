@@ -19,7 +19,8 @@ export class RegisterComponent implements OnInit, OnDestroy {
     name: '',
     admins: [],
     sprint: '',
-    vote: false
+    vote: false,
+    voteType: ''
   };
   createTeam = false;
   app: App;
@@ -41,7 +42,7 @@ export class RegisterComponent implements OnInit, OnDestroy {
   }
 
   onCreateTeam() {
-    this.app.teams.push({name: this.teamToCreate.name, admins: this.teamToCreate.admins, vote: false});
+    this.app.teams.push(this.teamToCreate);
     this.subscriptions.push(this.dataService.updateApplication(this.app).subscribe());
     const doc = {sprints: [this.teamToCreate.sprint]};
     doc[this.teamToCreate.sprint] = [];

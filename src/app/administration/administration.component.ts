@@ -72,14 +72,24 @@ export class AdministrationComponent implements OnInit, OnDestroy {
       }));
   }
 
-  openVote() {
-    this.changeVotingState(true, 'Voting is open!');
+  openVoteCategories() {
+    this.changeVotingState(true, 'category', 'Voting on categories is open!');
+    this.team.vote = [];
+    this.subscriptions.push(this.dataService.updateTeam(this.user.team, this.team).subscribe());
+  }
+
+  openVoteNotes() {
+    this.changeVotingState(true, 'note', 'Voting on notes is open!');
     this.team.vote = [];
     this.subscriptions.push(this.dataService.updateTeam(this.user.team, this.team).subscribe());
   }
 
   closeVote() {
-    this.changeVotingState(false, 'Voting is closed.');
+    this.changeVotingState(false, '', 'Voting is closed.');
+  }
+
+  onShowResults() {
+    this.router.navigate(['vote-results']);
   }
 
   ngOnDestroy() {
@@ -90,18 +100,15 @@ export class AdministrationComponent implements OnInit, OnDestroy {
     return self.indexOf(value) === index;
   }
 
-  private changeVotingState(on: boolean, message: string) {
+  private changeVotingState(on: boolean, type: string, message: string) {
     const teamIndex = this.app.teams.findIndex(x => x.name === this.user.team);
     const team = this.app.teams[teamIndex];
     team.vote = on;
+    team.voteType = type;
     this.app.teams.splice(teamIndex, 1);
     this.app.teams.push(team);
     this.subscriptions.push(this.dataService.updateApplication(this.app).subscribe(() => {
       this.message = message;
     }));
-  }
-
-  onShowResults() {
-    this.router.navigate(['vote-results']);
   }
 }

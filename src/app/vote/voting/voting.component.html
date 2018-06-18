@@ -15,8 +15,8 @@
       </div>
     </div>
     <div class="row">
-      <div class="col-md" *ngFor="let notesByGroup of notesByGroups" style="margin: 1em 0">
-        <button class="btn btn-outline-info" style="width: 15em; text-align: left" (click)="addVote(notesByGroup)">{{notesByGroup.group}}</button>
+      <div class="col-md" *ngFor="let notesByGroup of notesByItems" style="margin: 1em 0">
+        <button class="btn btn-outline-info" style="width: 15em; text-align: left" (click)="addVote(notesByGroup)">{{notesByGroup.item}}</button>
         <button *ngIf="notesByGroup.votes" class="btn btn-info" [disabled]="true">{{notesByGroup.votes}}</button>
       </div>
     </div>
