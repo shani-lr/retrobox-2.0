@@ -32,6 +32,7 @@ input {
   height: 8em;
   outline: none;
   font-size: 0.9em;
+  overflow-y: auto;
 }
 
 .grid {

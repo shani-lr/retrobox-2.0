@@ -17,7 +17,7 @@ export class VotingComponent implements OnInit, OnDestroy {
   hasVoted: boolean;
   private totalVotes = 3;
   private user: AppUser;
-  private team: { sprints: string[], vote: [{ item: string, votes: number, user: string }] };
+  private team: { sprints: string[], vote: { item: string, votes: number, user: string }[] };
   private sprint = '';
   private notes: Note[];
   private voteType: string;
