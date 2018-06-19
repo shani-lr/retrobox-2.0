@@ -1,11 +1,27 @@
-.btn-danger:focus, .btn-danger:not(:disabled):not(.disabled):active:focus {
-  box-shadow: none;
+.card-body {
+  padding: 0.75em;
 }
 
-.btn-success:focus, .btn-success:not(:disabled):not(.disabled):active:focus {
-  box-shadow: none;
+.card {
+  border-radius: 0.2em;
+  cursor: pointer;
+  width: 12em;
+  height: 12em;
+  font-size: 0.9em;
+  background-color: #d1ecf1;
+  border-color: #bee5eb;
+  overflow-y: auto;
 }
 
-.btn-outline-info:focus, .btn-outline-info:not(:disabled):not(.disabled):active:focus {
-  box-shadow: none;
+.card-title, .card-text {
+  text-align: center;
+}
+
+.card-text {
+  background-color: #10707f;
+  color: aliceblue;
+}
+
+.btn-outline-warning:hover {
+  color: #856404;
 }

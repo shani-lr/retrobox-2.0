@@ -1,9 +1,17 @@
 <div class="voting" style="margin: 2em">
-  <div *ngIf="!voted">
-    <div class="row">
+  <div *ngIf="!voteSubmitted">
+    <div *ngIf="!hasVoted" class="row">
       <div class="col">
         <div class="alert alert-info" role="alert">
           <i class="fas fa-info-circle"></i> You have 3 votes, use them to vote on the issues matter to you!
+        </div>
+      </div>
+    </div>
+    <div *ngIf="hasVoted" class="row">
+      <div class="col">
+        <div class="alert alert-warning" role="alert">
+          <i class="fas fa-info-circle"></i> You have already voted. To clear your vote and vote again click here:
+          <button class="btn btn-outline-warning" (click)="onDiscard()"><i class="fas fa-trash" style="font-size: 0.9em"></i> Clear Vote</button>
         </div>
       </div>
     </div>
@@ -15,20 +23,23 @@
       </div>
     </div>
     <div class="row">
-      <div class="col-md" *ngFor="let notesByGroup of notesByItems" style="margin: 1em 0">
-        <button class="btn btn-outline-info" style="width: 15em; text-align: left" (click)="addVote(notesByGroup)">{{notesByGroup.item}}</button>
-        <button *ngIf="notesByGroup.votes" class="btn btn-info" [disabled]="true">{{notesByGroup.votes}}</button>
+      <div *ngFor="let notesByGroup of notesByItems" (click)="addVote(notesByGroup)" class="col-md-auto note" style="margin: 1em 0">
+        <div class="card">
+          <div class="card-body">
+            <p class="card-text" style="font-size: 1.3em">Your Votes: {{notesByGroup.votes}}</p>
+            <p class="card-title">{{notesByGroup.item}}</p>
+          </div>
+        </div>
       </div>
     </div>
-    <div class="row" style="margin-top: 2em; text-align: center">
+    <div class="row" style="text-align: center">
       <div class="col">
-        <button class="btn btn-danger" (click)="onDiscard()"><i class="fas fa-ban" style="font-size: 0.9em"></i> Discard</button>
-        <button class="btn btn-success" (click)="onVote()"><i class="fas fa-volume-up" style="font-size: 0.9em"></i> Vote</button>
+        <button class="btn btn-success" (click)="onSubmitVote()"><i class="fas fa-volume-up" style="font-size: 0.9em"></i> Submit Vote</button>
       </div>
     </div>
   </div>
   <div class="row">
-    <div class="col" *ngIf="voted">
+    <div class="col" *ngIf="voteSubmitted">
       <div class="alert alert-success" role="alert">
         <i class="fas fa-check-circle"></i> Your vote was submitted successfully!
       </div>
