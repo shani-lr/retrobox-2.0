@@ -5,6 +5,7 @@ import { Subscription } from 'rxjs/Subscription';
 import { Note } from '../core/models/note.model';
 import { AppUser } from '../core/models/user.model';
 import { DataService } from '../shared/data.service';
+import { AppState } from '../core/models/app-state.model';
 
 @Component({
   selector: 'app-my-notes',
@@ -14,38 +15,34 @@ import { DataService } from '../shared/data.service';
 export class MyNotesComponent implements OnInit, OnDestroy {
   newNote: '';
   myNotes: Note[];
+  private appState: AppState;
   private notes: Note[];
-  private user: AppUser;
   private sprint = '';
-  private teamData;
   private subscriptions: Subscription[] = [];
 
   constructor(private datePipe: DatePipe, private dataService: DataService) {
   }
 
   ngOnInit() {
-    this.subscriptions.push(this.dataService.getUser().subscribe(user => {
-      this.user = user;
-      this.subscriptions.push(this.dataService.getTeam(this.user.team)
-        .subscribe((doc: {sprints: string[]}) => {
-          this.teamData = doc;
-          if (this.teamData.sprints) {
-            this.sprint = this.teamData.sprints[this.teamData.sprints.length - 1];
-            this.notes = this.teamData && this.teamData[this.sprint] ? this.teamData[this.sprint] : [];
-            this.myNotes =
-              this.teamData && this.teamData[this.sprint] ? this.teamData[this.sprint].filter(note => note.by === this.user.name) : [];
-          }
-        }));
+    this.subscriptions.push(this.dataService.getAppState().subscribe((appState: AppState) => {
+      this.appState = appState;
+      if (this.appState && this.appState.teamData && this.appState.teamData.sprints) {
+        this.sprint = this.appState.teamData.sprints[this.appState.teamData.sprints.length - 1];
+        this.notes = this.appState.teamData[this.sprint] ? this.appState.teamData[this.sprint] : [];
+        this.myNotes = this.appState.teamData[this.sprint] ?
+          this.appState.teamData[this.sprint]
+          .filter(note => note.by === this.appState.user.name) : [];
+      }
     }));
   }
 
   onSave() {
     if (this.newNote) {
       const date = this.datePipe.transform(new Date(), 'MMM d');
-      this.notes.push({ text: this.newNote, by: this.user.name, group: '', at: date});
-      this.teamData[this.sprint] = this.notes;
+      this.notes.push({ text: this.newNote, by: this.appState.user.name, group: '', at: date});
+      this.appState.teamData[this.sprint] = this.notes;
       this.subscriptions.push(
-        this.dataService.updateTeam(this.user.team, this.teamData).subscribe());
+        this.dataService.updateTeam(this.appState.user.team, this.appState.teamData).subscribe());
       this.newNote = '';
     }
   }
@@ -56,11 +53,11 @@ export class MyNotesComponent implements OnInit, OnDestroy {
 
   onDelete(note: Note) {
     const noteToDeleteIndex =
-      this.notes.findIndex(x => x.by === this.user.name && x.at === note.at && x.text === note.text);
+      this.notes.findIndex(x => x.by === this.appState.user.name && x.at === note.at && x.text === note.text);
     this.notes.splice(noteToDeleteIndex, 1);
-    this.teamData[this.sprint] = this.notes;
+    this.appState.teamData[this.sprint] = this.notes;
     this.subscriptions.push(
-      this.dataService.updateTeam(this.user.team, this.teamData).subscribe());
+      this.dataService.updateTeam(this.appState.user.team, this.appState.teamData).subscribe());
     this.newNote = '';
   }
 

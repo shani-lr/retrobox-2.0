@@ -5,134 +5,73 @@ import { User } from 'firebase';
 import 'rxjs/add/observable/combineLatest';
 import 'rxjs/add/observable/from';
 import 'rxjs/add/operator/map';
+import 'rxjs/add/operator/mergeMap';
 
 import { App } from '../core/models/app.model';
 import { AuthService } from '../auth/auth.service';
+import { AppState } from '../core/models/app-state.model';
+import { Team, TeamData } from '../core/models/team.model';
+import { AppUser } from '../core/models/user.model';
 
 @Injectable()
 export class DataService {
+  private appCollection = 'app';
   private appDoc: AngularFirestoreDocument<App>;
 
   constructor(private authService: AuthService, private db: AngularFirestore) {
-    this.appDoc = this.db.collection('app').doc<App>('app');
+    this.appDoc = this.db.collection(this.appCollection).doc<App>(this.appCollection);
   }
 
-  isRegistered(): Observable<boolean> {
-    return Observable.combineLatest(this.appDoc.valueChanges(), this.authService.authState, (appDoc: App, user: User) => ({ appDoc, user }))
-      .map(data => {
-        let result = false;
-        if (data.appDoc && data.user) {
-          const appUser = data.appDoc.users.find(
-            x => x.name === data.user.displayName);
-          result = !!appUser;
+  getAppState(): Observable<AppState> {
+    return Observable.combineLatest(
+      this.appDoc.valueChanges(), this.authService.authState,
+      (app: App, user: User) => {
+        const appUser = this.findUser(app, user);
+        const team = this.findUsersTeam(app, appUser);
+        return {
+          app: app,
+          user: appUser,
+          team: team,
+          teamData: null
+        };
+      })
+      .mergeMap((appState: AppState) => {
+        if (appState.team) {
+          return this.db.collection(this.appCollection).doc(appState.team.name).valueChanges();
         }
-        return result;
-      });
+        return Observable.from([{sprints: [], vote: []}]);
+        },
+        (appState: AppState, teamData: TeamData) => {
+          return {
+            ...appState,
+            teamData: teamData
+          };
+        });
   }
 
-  isAdmin(): Observable<boolean> {
-    return Observable.combineLatest(this.appDoc.valueChanges(), this.authService.authState, (appDoc: App, user: User) => ({ appDoc, user }))
-      .map(data => {
-        let result = false;
-        if (data.appDoc && data.user) {
-          const appUser = data.appDoc.users.find(
-            x => x.name === data.user.displayName);
-          if (appUser) {
-            const team = data.appDoc.teams.find(
-              x => x.name === appUser.team);
-            if (team) {
-              result = team.admins.includes(appUser.name);
-            }
-          }
-        }
-        return result;
-      });
-  }
-
-  isVotingOn(): Observable<boolean> {
-    return Observable.combineLatest(this.appDoc.valueChanges(), this.authService.authState, (appDoc: App, user: User) => ({ appDoc, user }))
-      .map(data => {
-        let result = false;
-        if (data.appDoc && data.user) {
-          const appUser = data.appDoc.users.find(
-            x => x.name === data.user.displayName);
-          if (appUser) {
-            const team = data.appDoc.teams.find(
-              x => x.name === appUser.team);
-            if (team && team.vote) {
-              result = true;
-            }
-          }
-        }
-        return result;
-      });
-  }
-
-
-  getApplication(): Observable<App> {
-    return this.appDoc.valueChanges();
-  }
-
-  updateApplication(updatedApplication: App) {
+  updateApplication(updatedApplication: App): Observable<void> {
     return Observable.from(this.appDoc.update(updatedApplication));
   }
 
-  createApplicationDocument(name: string, value: any): Promise<void> {
-    return this.db.collection('app').doc(name).set(value);
+  createTeam(teamName: string, teamData: TeamData): Observable<void> {
+    return Observable.from(this.db.collection(this.appCollection).doc(teamName).set(teamData));
   }
 
-  getUser() {
-    return Observable.combineLatest(this.appDoc.valueChanges(), this.authService.authState, (appDoc: App, user: User) => ({ appDoc, user }))
-      .map(data => {
-        if (data.appDoc && data.user) {
-          return data.appDoc.users.find(
-            x => x.name === data.user.displayName);
-         }
-      });
+  updateTeam(teamToUpdateName: string, team): Observable<void> {
+    return Observable.from(this.db.collection('app').doc(teamToUpdateName).update(team));
   }
 
-  getTeam(teamName: string) {
-    return this.db.collection('app').doc(teamName).valueChanges();
+  private findUser(app: App, user: User): AppUser {
+    if (app && user) {
+      return app.users.find(x => x.name === user.displayName);
+    }
+    return null;
   }
 
-  updateTeam(teamName: string, team) {
-    return Observable.from(this.db.collection('app').doc(teamName).update(team));
+  private findUsersTeam(app: App, user: AppUser): Team {
+    if (user) {
+      return app.teams.find(x => x.name === user.team);
+    }
+    return null;
   }
-
-  getNonAdminTeamMembers() {
-    return Observable.combineLatest(this.appDoc.valueChanges(), this.authService.authState, (appDoc: App, user: User) => ({ appDoc, user }))
-      .map(data => {
-        if (data.appDoc && data.user) {
-          const appUser = data.appDoc.users.find(
-            x => x.name === data.user.displayName);
-          if (appUser) {
-            const team = data.appDoc.teams.find(t => t.name === appUser.team);
-            return data.appDoc.users
-              .filter(user => user.team === appUser.team)
-              .map(user => user.name)
-              .filter(user => !team.admins.includes(user));
-          }
-        }
-      });
-  }
-
-  getVoteType(): Observable<string> {
-    return Observable.combineLatest(this.appDoc.valueChanges(), this.authService.authState, (appDoc: App, user: User) => ({ appDoc, user }))
-      .map(data => {
-        let result = '';
-        if (data.appDoc && data.user) {
-          const appUser = data.appDoc.users.find(
-            x => x.name === data.user.displayName);
-          if (appUser) {
-            const team = data.appDoc.teams.find(
-              x => x.name === appUser.team);
-            if (team && team.vote) {
-              result = team.voteType;
-            }
-          }
-        }
-        return result;
-      });
-  }
-
 }

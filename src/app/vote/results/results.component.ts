@@ -2,6 +2,8 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs/Subscription';
 import { DataService } from '../../shared/data.service';
 import { AppUser } from '../../core/models/user.model';
+import { AppState } from '../../core/models/app-state.model';
+import { TeamData } from '../../core/models/team.model';
 
 @Component({
   selector: 'app-results',
@@ -24,20 +26,17 @@ export class ResultsComponent implements OnInit, OnDestroy {
   results: { name: string, value: number }[] = [];
   private subscriptions: Subscription[] = [];
   private user: AppUser;
-  private team: { sprints: string[]; vote: [{ item: string; votes: number; user: string }] };
+  private team: TeamData;
 
   constructor(private dataService: DataService) {
   }
 
   ngOnInit() {
     this.subscriptions.push(
-      this.dataService.getUser().subscribe(user => {
-        this.user = user;
-        this.subscriptions.push(this.dataService.getTeam(this.user.team)
-          .subscribe((doc: { sprints: string[], vote: [{ item: string, votes: number, user: string }] }) => {
-            this.team = doc;
-            this.calculateVotes();
-          }));
+      this.dataService.getAppState().subscribe((appState: AppState) => {
+        this.user = appState.user;
+        this.team = appState.teamData;
+        this.calculateVotes();
       }));
   }
 

@@ -1,28 +1,17 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
-import { Subscription } from 'rxjs/Subscription';
-
-import { AuthService } from '../auth.service';
+import { Component } from '@angular/core';
+import { AlertConsts } from '../../shared/alert/alert.consts';
 
 @Component({
   selector: 'app-login',
-  template: `<app-error-page [errorMessage]="'Please login to use the app.'"></app-error-page>`,
+  template: `
+    <div class="wrapper">
+      <app-alert [alert]="alertError"></app-alert>
+    </div>`,
+  styles:['.wrapper { margin: 1em; }']
 })
-export class LoginComponent implements OnInit, OnDestroy {
-  private userSubscription: Subscription;
-
-  constructor(private authService: AuthService, private router: Router) { }
-
-  ngOnInit() {
-    this.userSubscription =
-      this.authService.isLoggedIn().subscribe((isLoggedIn: boolean) => {
-      if (isLoggedIn) {
-        this.router.navigate(['/my-notes']);
-      }
-    });
-  }
-
-  ngOnDestroy() {
-    this.userSubscription.unsubscribe();
+export class LoginComponent  {
+  alertError = {
+    ...AlertConsts.danger,
+    message: "You need to be logged in to view this page."
   }
 }

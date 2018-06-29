@@ -3,25 +3,27 @@ import { AngularFireAuth } from 'angularfire2/auth';
 import * as firebase from '@firebase/app';
 import { User } from 'firebase';
 import 'rxjs/add/operator/map';
+import 'rxjs/add/observable/from';
+import { Observable } from 'rxjs/Observable';
 
 @Injectable()
 export class AuthService {
 
   constructor(private angularFireAuth: AngularFireAuth) { }
 
-  login() {
-    this.angularFireAuth.auth.signInWithPopup(new firebase.firebase.auth.GoogleAuthProvider());
-  }
-  logout() {
-    this.angularFireAuth.auth.signOut();
+  login(): Observable<any> {
+    return Observable.from(this.angularFireAuth.auth.signInWithPopup(new firebase.firebase.auth.GoogleAuthProvider()));
   }
 
-  get authState() {
+  logout(): Observable<any> {
+    return Observable.from(this.angularFireAuth.auth.signOut());
+  }
+
+  get authState(): Observable<User | null> {
     return this.angularFireAuth.authState;
   }
 
-  isLoggedIn() {
+  isLoggedIn(): Observable<boolean> {
     return this.angularFireAuth.authState.map((user: User) => !!user);
   }
-
 }

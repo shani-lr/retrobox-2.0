@@ -3,6 +3,7 @@ import { ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot } from
 import { Observable } from 'rxjs/Observable';
 
 import { DataService } from '../shared/data.service';
+import { AppState } from '../core/models/app-state.model';
 
 @Injectable()
 export class VotingGuard implements CanActivate  {
@@ -14,7 +15,8 @@ export class VotingGuard implements CanActivate  {
     next: ActivatedRouteSnapshot,
     state: RouterStateSnapshot): Observable<boolean> | Promise<boolean> | boolean {
 
-    return this.dataService.isVotingOn().map((isVotingOn: boolean) => {
+    return this.dataService.getAppState().map((appState: AppState) => {
+      const isVotingOn = !!appState && !!appState.team && appState.team.vote;
       if (!isVotingOn) {
         this.router.navigate(['/']);
       }

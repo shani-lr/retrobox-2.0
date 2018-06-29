@@ -3,112 +3,105 @@ import { Router } from '@angular/router';
 import { Subscription } from 'rxjs/Subscription';
 
 import { DataService } from '../shared/data.service';
-import { AppUser } from '../core/models/user.model';
-import { App } from '../core/models/app.model';
+import { AppState } from '../core/models/app-state.model';
+import { AlertConsts } from '../shared/alert/alert.consts';
+import { Alert } from '../core/models/alert.model';
+import { AdministrationService } from './administration.service';
 
 @Component({
   selector: 'app-administration',
   templateUrl: './administration.component.html',
-  styleUrls: ['./administration.component.css']
+  styleUrls: ['./administration.component.scss']
 })
 export class AdministrationComponent implements OnInit, OnDestroy {
-  user: AppUser;
+  appState: AppState;
   currentSprint: string;
-  addAnotherAdmin: boolean;
+  isAddAdminSelected: boolean;
   newAdmin: string;
-  teamMembers: string[];
-  message: string;
+  nonAdminTeamMembers: string[];
   isVotingOn: boolean;
-  private app: App;
-  private team: { sprints: string[], vote: any[] };
+  alert: Alert;
   private subscriptions: Subscription[] = [];
 
   constructor(private dataService: DataService, private router: Router) {
   }
 
-  ngOnInit() {
-    this.subscriptions.push(this.dataService.getUser().subscribe(user => {
-      this.user = user;
-      this.subscriptions.push(this.dataService.getTeam(this.user.team)
-        .subscribe((doc: { sprints: string[], vote: any[] }) => {
-          this.team = doc;
-          if (this.team.sprints) {
-            this.currentSprint = this.team.sprints[this.team.sprints.length - 1];
-          }
-        }));
+  ngOnInit(): void {
+    this.subscriptions.push(this.dataService.getAppState().subscribe((appState: AppState) => {
+      this.appState = appState;
+      this.isVotingOn = AdministrationService.getIsVotingOn(this.appState);
+      this.nonAdminTeamMembers = AdministrationService.getNonAdminTeamMembers(this.appState);
+      this.currentSprint = AdministrationService.getCurrentSprint(this.appState);
     }));
-    this.subscriptions.push(this.dataService.getNonAdminTeamMembers().subscribe(teamMembers => {
-      this.teamMembers = teamMembers;
-    }));
-    this.subscriptions.push(this.dataService.getApplication().subscribe(app => this.app = app));
-    this.subscriptions.push(this.dataService.isVotingOn().subscribe(isVotingOn => this.isVotingOn = isVotingOn));
   }
 
-  createNewSprint() {
+  createNewSprint(): void {
     const newSprint = `${((+this.currentSprint) + 1)}`;
-    this.team.sprints.push(newSprint);
-    this.team[newSprint] = [];
-    this.subscriptions.push(
-      this.dataService.updateTeam(this.user.team, this.team).subscribe(() => {
-      this.message = `Sprint ${newSprint} was successfully added!`;
-      this.currentSprint = newSprint;
-    }));
-  }
+    const teamDataWithNewSprint =
+      AdministrationService.getTeamDataWithNewSprint(newSprint, this.appState.teamData);
 
-  onAddAnotherAdmin() {
-    const teamIndex = this.app.teams.findIndex(x => x.name === this.user.team);
-    const team = this.app.teams[teamIndex];
-    team.admins.push(this.newAdmin);
-    team.admins = team.admins.filter(this.onlyUnique);
-    this.app.teams.splice(teamIndex, 1);
-    this.app.teams.push(team);
-    this.subscriptions.push(this.dataService.updateApplication(this.app).subscribe(() => {
-        this.addAnotherAdmin = false;
-        this.message = `${this.newAdmin} was successfully added as admin!`;
-        this.newAdmin = '';
-        this.subscriptions.push(this.dataService.getNonAdminTeamMembers().subscribe(teamMembers => {
-          this.teamMembers = teamMembers;
-        }));
+    this.subscriptions.push(
+      this.dataService.updateTeam(this.appState.team.name, teamDataWithNewSprint).subscribe(() => {
+        this.alert = {
+          ...AlertConsts.success,
+          message: `Sprint ${newSprint} was successfully added!`
+        };
       }));
   }
 
-  openVoteCategories() {
-    this.changeVotingState(true, 'category', 'Voting on categories is open!');
-    this.team.vote = [];
-    this.subscriptions.push(this.dataService.updateTeam(this.user.team, this.team).subscribe());
+  addAdmin(): void {
+    const appWithUpdatedTeamAdmins =
+      AdministrationService.getAppWithUpdatedTeamAdmins(this.appState.app, this.appState.team, this.newAdmin);
+
+    this.subscriptions.push(
+      this.dataService.updateApplication(appWithUpdatedTeamAdmins).subscribe(() => {
+        this.alert = {
+          ...AlertConsts.success,
+          message: `${this.newAdmin} was successfully added as admin!`
+        };
+        this.resetAddAdminState();
+      }));
   }
 
-  openVoteNotes() {
-    this.changeVotingState(true, 'note', 'Voting on notes is open!');
-    this.team.vote = [];
-    this.subscriptions.push(this.dataService.updateTeam(this.user.team, this.team).subscribe());
+  resetAddAdminState() {
+    this.isAddAdminSelected = false;
+    this.newAdmin = '';
+    this.nonAdminTeamMembers = AdministrationService.getNonAdminTeamMembers(this.appState);
   }
 
-  closeVote() {
-    this.changeVotingState(false, '', 'Voting is closed.');
+  openVote(): void {
+    this.clearVote();
+    this.changeVotingState(true);
   }
 
-  onShowResults() {
+  closeVote(): void {
+    this.changeVotingState(false);
+  }
+
+  changeVotingState(vote: boolean): void {
+    const appWithUpdatedTeamVote =
+      AdministrationService.getAppWithUpdatedTeamVote(this.appState.app, this.appState.team, vote);
+
+    this.subscriptions.push(
+      this.dataService.updateApplication(appWithUpdatedTeamVote).subscribe(() =>
+        this.alert = {
+        ...AlertConsts.success,
+        message: `The vote is now ${vote ? 'open' : 'closed'}!`
+      }));
+  }
+
+  clearVote() {
+    const updatedTeamData = AdministrationService.getTeamDataWithClearVote(this.appState.teamData);
+
+    this.subscriptions.push(
+      this.dataService.updateTeam(this.appState.user.team, updatedTeamData).subscribe());
+  }
+
+  onShowResults(): void {
     this.router.navigate(['vote-results']);
   }
 
-  ngOnDestroy() {
+  ngOnDestroy(): void {
     this.subscriptions.forEach(subscription => subscription.unsubscribe());
-  }
-
-  private onlyUnique(value, index, self) {
-    return self.indexOf(value) === index;
-  }
-
-  private changeVotingState(on: boolean, type: string, message: string) {
-    const teamIndex = this.app.teams.findIndex(x => x.name === this.user.team);
-    const team = this.app.teams[teamIndex];
-    team.vote = on;
-    team.voteType = type;
-    this.app.teams.splice(teamIndex, 1);
-    this.app.teams.push(team);
-    this.subscriptions.push(this.dataService.updateApplication(this.app).subscribe(() => {
-      this.message = message;
-    }));
   }
 }

@@ -2,6 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { DataService } from '../../shared/data.service';
 
 import { Subscription } from 'rxjs/Subscription';
+import { AppState } from '../../core/models/app-state.model';
 
 @Component({
   selector: 'app-old-retros',
@@ -11,27 +12,20 @@ import { Subscription } from 'rxjs/Subscription';
 export class OldRetrosComponent implements OnInit, OnDestroy {
   sprints: string[];
   selectedSprint: string;
-  private userSubscription: Subscription;
-  private teamSubscription: Subscription;
+  private appStateSubscription: Subscription;
 
-  constructor(private dataService: DataService) { }
+  constructor(private dataService: DataService) {
+  }
 
   ngOnInit() {
-    this.userSubscription =
-    this.dataService.getUser().subscribe(user => {
-      this.teamSubscription =
-        this.dataService.getTeam(user.team)
-          .subscribe((team: {sprints: string[]}) => {
-            this.sprints = team.sprints;
-            this.sprints.splice(-1, 1);
-          });
-    });
+    this.appStateSubscription =
+      this.dataService.getAppState().subscribe((appState: AppState) => {
+        this.sprints = appState.teamData.sprints;
+        this.sprints.splice(-1, 1);
+      });
   }
 
   ngOnDestroy() {
-    this.userSubscription.unsubscribe();
-    if (this.teamSubscription) {
-      this.teamSubscription.unsubscribe();
-    }
+    this.appStateSubscription.unsubscribe();
   }
 }

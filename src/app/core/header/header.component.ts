@@ -4,11 +4,14 @@ import { Router } from '@angular/router';
 import { AuthService } from '../../auth/auth.service';
 import { DataService } from '../../shared/data.service';
 import { Subscription } from 'rxjs/Subscription';
+import { AppState } from '../models/app-state.model';
+import { PermissionsService } from '../../auth/permissions.service';
+import { AdministrationService } from '../../administration/administration.service';
 
 @Component({
   selector: 'app-header',
   templateUrl: './header.component.html',
-  styleUrls: ['./header.component.css']
+  styleUrls: ['./header.component.scss']
 })
 export class HeaderComponent implements OnInit, OnDestroy {
   isLoggedIn: boolean;
@@ -20,29 +23,29 @@ export class HeaderComponent implements OnInit, OnDestroy {
   constructor(private authService: AuthService, private dataService: DataService, private router: Router) {
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.subscriptions.push(
       this.authService.isLoggedIn().subscribe((isLoggedIn: boolean) => {
       this.isLoggedIn = isLoggedIn;
-      this.subscriptions.push(
-        this.dataService.isAdmin().subscribe((isAdmin: boolean) => this.isAdmin = isAdmin));
-      this.subscriptions.push(
-        this.dataService.isRegistered().subscribe((isRegistered: boolean) => this.isRegistered = isRegistered));
-      this.subscriptions.push(
-        this.dataService.isVotingOn().subscribe((isVotingOn: boolean) => this.isVotingOn = isVotingOn));
     }));
+    this.subscriptions.push(this.dataService.getAppState()
+      .subscribe((appState: AppState) => {
+        this.isRegistered = PermissionsService.isRegistered(appState);
+        this.isAdmin = PermissionsService.isAdmin(appState);
+        this.isVotingOn = AdministrationService.getIsVotingOn(appState);
+      }));
   }
 
-  login() {
+  login(): void {
     this.authService.login();
   }
 
-  logout() {
+  logout(): void {
     this.authService.logout();
     this.router.navigate(['/']);
   }
 
-  ngOnDestroy() {
+  ngOnDestroy(): void {
     this.subscriptions.forEach(subscription => subscription.unsubscribe());
   }
 

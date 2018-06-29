@@ -1,10 +1,12 @@
+import { Vote } from './vote.model';
+
 export interface Team {
-  vote: boolean;
-  voteType: string;
   name: string;
   admins: string[];
+  vote: boolean;
 }
 
-export interface TeamExtended extends Team {
-  sprint: string;
+export interface TeamData {
+  sprints: string[];
+  vote: Vote[];
 }

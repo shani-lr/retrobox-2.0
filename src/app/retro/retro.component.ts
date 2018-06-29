@@ -5,7 +5,7 @@ import 'rxjs/add/operator/map';
 
 import { Note } from '../core/models/note.model';
 import { DataService } from '../shared/data.service';
-import { AppUser } from '../core/models/user.model';
+import { AppState } from '../core/models/app-state.model';
 
 @Component({
   selector: 'app-retro',
@@ -20,8 +20,7 @@ export class RetroComponent implements OnInit, OnDestroy {
   sprint = '';
   showAlertMessage: boolean;
   private notes: Note[];
-  private user: AppUser;
-  private team: { sprints: string[] };
+  private appState: AppState;
   private subscriptions: Subscription[] = [];
 
   constructor(private dragulaService: DragulaService, private dataService: DataService) {
@@ -31,17 +30,13 @@ export class RetroComponent implements OnInit, OnDestroy {
     this.configureDragula();
 
     this.subscriptions.push(
-      this.dataService.getUser().subscribe(user => {
-        this.user = user;
-        this.subscriptions.push(this.dataService.getTeam(this.user.team)
-          .subscribe((doc: { sprints: string[] }) => {
-            this.team = doc;
-            if (this.team.sprints) {
-              this.sprint = this.oldSprint ? this.oldSprint : this.team.sprints[this.team.sprints.length - 1];
-              this.notes = this.team && this.team[this.sprint] ? this.team[this.sprint] : [];
-              this.mapNotesToGroups();
-            }
-          }));
+      this.dataService.getAppState().subscribe((appState: AppState) => {
+        this.appState = appState;
+        if (this.appState && this.appState.teamData && this.appState.teamData.sprints) {
+          this.sprint = this.oldSprint ? this.oldSprint : this.appState.teamData.sprints[this.appState.teamData.sprints.length - 1];
+          this.notes = this.appState.teamData[this.sprint] ? this.appState.teamData[this.sprint] : [];
+          this.mapNotesToGroups();
+        }
       }));
   }
 
@@ -92,9 +87,9 @@ export class RetroComponent implements OnInit, OnDestroy {
         note.group = title;
       }
     });
-    this.team[this.sprint] = this.notes;
+    this.appState.teamData[this.sprint] = this.notes;
     this.subscriptions.push(
-      this.dataService.updateTeam(this.user.team, this.team).subscribe());
+      this.dataService.updateTeam(this.appState.user.team, this.appState.teamData).subscribe());
     this.showAlertMessage = false;
   }
 

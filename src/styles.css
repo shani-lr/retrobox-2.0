@@ -22,6 +22,5 @@ html, body {
 }
 
 .vote-results svg {
-  width: 100%;
   margin: 2em calc(50% - 500px);
 }

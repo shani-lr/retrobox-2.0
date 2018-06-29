@@ -4,6 +4,8 @@ import { Subscription } from 'rxjs/Subscription';
 import { DataService } from '../../shared/data.service';
 import { AppUser } from '../../core/models/user.model';
 import { Note } from '../../core/models/note.model';
+import { AppState } from '../../core/models/app-state.model';
+import { TeamData } from '../../core/models/team.model';
 
 @Component({
   selector: 'app-voting',
@@ -17,10 +19,9 @@ export class VotingComponent implements OnInit, OnDestroy {
   hasVoted: boolean;
   private totalVotes = 3;
   private user: AppUser;
-  private team: { sprints: string[], vote: { item: string, votes: number, user: string }[] };
+  private team: TeamData;
   private sprint = '';
   private notes: Note[];
-  private voteType: string;
   private subscriptions: Subscription[] = [];
 
   constructor(private dataService: DataService) {
@@ -28,21 +29,16 @@ export class VotingComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.subscriptions.push(
-      this.dataService.getUser().subscribe(user => {
-        this.user = user;
-        this.subscriptions.push(this.dataService.getVoteType().subscribe(voteType => this.voteType = voteType));
-
-        this.subscriptions.push(this.dataService.getTeam(this.user.team)
-          .subscribe((doc: { sprints: string[], vote: [{ item: string, votes: number, user: string }] }) => {
-            this.team = doc;
-            if (this.team.sprints) {
-              this.sprint = this.team.sprints[this.team.sprints.length - 1];
-              this.notes = this.team && this.team[this.sprint] ? this.team[this.sprint] : [];
-              this.notesByItems = [];
-              this.mapNotesToItems();
-              this.populateVotes();
-            }
-          }));
+      this.dataService.getAppState().subscribe((appState: AppState) => {
+        this.user = appState.user;
+        this.team = appState.teamData;
+        if (this.team && this.team.sprints) {
+          this.sprint = this.team.sprints[this.team.sprints.length - 1];
+          this.notes = this.team && this.team[this.sprint] ? this.team[this.sprint] : [];
+          this.notesByItems = [];
+          this.mapNotesToItems();
+          this.populateVotes();
+        }
       }));
   }
 
@@ -78,11 +74,7 @@ export class VotingComponent implements OnInit, OnDestroy {
   }
 
   private mapNotesToItems() {
-    if (this.voteType === 'category') {
-      this.mapNotesToCategories();
-    } else {
-      this.mapNotesToNoteItems();
-    }
+    this.mapNotesToNoteItems();
   }
 
   private mapNotesToCategories() {

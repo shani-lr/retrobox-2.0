@@ -1,12 +1,13 @@
-.btn-info:focus {
-  box-shadow: none;
+.btn-info {
+  &:focus {
+    box-shadow: none;
+  }
+  &:not(:disabled):not(.disabled):active:focus {
+    box-shadow: none;
+  }
 }
 
-.show>.btn-info.dropdown-toggle:focus {
-  box-shadow: none;
-}
-
-.btn-info:not(:disabled):not(.disabled):active:focus {
+.show > .btn-info.dropdown-toggle:focus {
   box-shadow: none;
 }
 

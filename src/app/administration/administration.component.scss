@@ -1,0 +1,54 @@
+.administration {
+  margin: 1em 2em;
+
+  .title {
+    h2 {
+      font-family: 'Bowlby One', cursive;
+      color: lightskyblue;
+      text-align: center;
+    }
+  }
+
+  .alert {
+    text-align: center;
+  }
+
+  .btn-primary {
+    &:focus {
+      box-shadow: none;
+      outline: none;
+    }
+    &:not(:disabled):not(.disabled):active:focus {
+      box-shadow: none;
+      outline: none;
+    }
+  }
+
+  button:focus {
+    outline: none;
+  }
+
+  .show > .btn-primary.dropdown-toggle:focus {
+    box-shadow: none;
+  }
+
+  .dropdown-item:active {
+    background: #b8daff;
+  }
+
+  #dropdownBasic1 {
+    border-radius: 3px;
+    width: 12em;
+  }
+
+  .dropdown-menu {
+    min-width: 0;
+    border-radius: 0;
+    border-color: #b8daff;
+    width: 12em;
+  }
+
+  .margin-bottom {
+    margin-bottom: 1em;
+  }
+}

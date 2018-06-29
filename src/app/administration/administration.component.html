@@ -1,53 +1,48 @@
 <div class="administration">
-  <div class="row">
+  <div class="row title">
     <div class="col">
-      <div class="alert alert-primary" role="alert">
-        <h4>{{user?.team}} team sprint {{currentSprint}}.</h4>
-      </div>
+      <h2>{{appState?.user?.team}} team sprint {{currentSprint}}</h2>
     </div>
   </div>
-  <div class="row" *ngIf="message">
-    <div class="col">
-      <div class="alert alert-success" role="alert">
-        <i class="fas fa-check-circle"></i> {{message}}
-      </div>
-    </div>
-  </div>
+  <app-alert [alert]="this.alert"></app-alert>
   <div class="row">
-    <div class="col-md-auto margin-bottom-1">
+    <div class="col-md-auto margin-bottom">
       <button class="btn btn-primary d-inline-block" (click)="createNewSprint()">Create new sprint</button>
     </div>
   </div>
   <div class="row">
-    <div class="col-md-auto margin-bottom-1">
-      <button class="btn btn-primary d-inline-block" (click)="addAnotherAdmin = true">Add another admin</button>
+    <div class="col-md-auto margin-bottom">
+      <button class="btn btn-primary d-inline-block" (click)="isAddAdminSelected = true">Add another admin</button>
     </div>
-    <div *ngIf="addAnotherAdmin">
-      <div class="col-md-auto d-inline-block padding-right-0 margin-bottom-1">
+    <div *ngIf="isAddAdminSelected">
+      <div class="col-md-auto d-inline-block margin-bottom">
         <div class="d-inline-block center-vertically">Choose another admin:</div>
       </div>
-      <div class="col-md-auto d-inline-block margin-bottom-1">
+      <div class="col-md-auto d-inline-block margin-bottom">
         <div ngbDropdown class="d-inline-block">
           <button class="btn btn-primary" id="dropdownBasic1" ngbDropdownToggle>
             {{ newAdmin ? newAdmin : 'No user selected'}}
           </button>
           <div ngbDropdownMenu aria-labelledby="dropdownBasic1" class="dropdown-menu">
-            <button *ngFor="let teamMember of teamMembers" class="dropdown-item"
+            <button *ngFor="let teamMember of nonAdminTeamMembers" class="dropdown-item"
                     (click)="newAdmin = teamMember">{{teamMember}}
             </button>
           </div>
         </div>
       </div>
       <div class="col-md-auto d-inline-block" *ngIf="newAdmin">
-        <button class="btn btn-primary" (click)="onAddAnotherAdmin()"><i class="fas fa-plus-circle"></i> Add</button>
+        <button class="btn btn-primary" (click)="addAdmin()"><i class="fas fa-plus-circle"></i> Add</button>
       </div>
     </div>
   </div>
   <div class="row">
-    <div class="col-md-auto margin-bottom-1">
-      <button *ngIf="!isVotingOn" class="btn btn-primary d-inline-block" (click)="openVoteCategories()">Open Vote (categories)</button>
-      <button *ngIf="!isVotingOn" class="btn btn-primary d-inline-block" (click)="openVoteNotes()">Open Vote (notes)</button>
-      <button *ngIf="isVotingOn" class="btn btn-primary d-inline-block" (click)="closeVote()">Close Vote</button>
+    <div class="col-md-auto margin-bottom">
+      <ng-container *ngIf="!isVotingOn; else showCloseVote">
+        <button class="btn btn-primary d-inline-block" (click)="openVote()">Open Vote</button>
+      </ng-container>
+      <ng-template #showCloseVote>
+        <button class="btn btn-primary d-inline-block" (click)="closeVote()">Close Vote</button>
+      </ng-template>
       <button class="btn btn-primary d-inline-block" (click)="onShowResults()">Show last vote results</button>
     </div>
   </div>
