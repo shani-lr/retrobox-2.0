@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 
-import { Alert } from '../../core/models/alert.model';
+import { Alert } from '../models/alert.model';
 
 @Component({
   selector: 'app-alert',
@@ -14,7 +14,8 @@ import { Alert } from '../../core/models/alert.model';
         </ng-container>
       </div>
     </div>
-  `
+  `,
+  styles: ['.row { margin: 0; } .col { padding: 0 1rem; }']
 })
 export class AlertComponent {
 

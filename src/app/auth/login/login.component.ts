@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+
 import { AlertConsts } from '../../shared/alert/alert.consts';
 
 @Component({

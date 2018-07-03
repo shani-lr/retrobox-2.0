@@ -1,118 +1,71 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs/Subscription';
 
-import { DataService } from '../../shared/data.service';
-import { AppUser } from '../../core/models/user.model';
-import { Note } from '../../core/models/note.model';
-import { AppState } from '../../core/models/app-state.model';
-import { TeamData } from '../../core/models/team.model';
+import { DataService } from '../../shared/services/data.service';
+import { Note } from '../../shared/models/note.model';
+import { AppState } from '../../shared/models/app-state.model';
+import { AlertConsts } from '../../shared/alert/alert.consts';
+import { Alert } from '../../shared/models/alert.model';
+import { TeamService } from '../../shared/services/team.service';
+import { NotesService } from '../../shared/services/notes.service';
 
 @Component({
   selector: 'app-voting',
   templateUrl: './voting.component.html',
-  styleUrls: ['./voting.component.css']
+  styleUrls: ['./voting.component.scss']
 })
 export class VotingComponent implements OnInit, OnDestroy {
-  showErrorMessage: boolean;
-  voteSubmitted: boolean;
-  notesByItems: { item: string, notes: Note[], votes: number }[] = [];
-  hasVoted: boolean;
-  private totalVotes = 3;
-  private user: AppUser;
-  private team: TeamData;
+  notes: Note[];
+  mySelectedNotesText: string[];
+  voteInfoAlert: Alert = {
+    ...AlertConsts.info,
+    message: 'You have 3 votes, use them to vote on the issues matter to you by selecting them (to unselect an issue click it again).'
+  };
+  voteErrorAlert: Alert;
   private sprint = '';
-  private notes: Note[];
   private subscriptions: Subscription[] = [];
+  private appState: AppState;
 
-  constructor(private dataService: DataService) {
+  constructor(private dataService: DataService, private teamService: TeamService,
+              private notesService: NotesService) {
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.subscriptions.push(
       this.dataService.getAppState().subscribe((appState: AppState) => {
-        this.user = appState.user;
-        this.team = appState.teamData;
-        if (this.team && this.team.sprints) {
-          this.sprint = this.team.sprints[this.team.sprints.length - 1];
-          this.notes = this.team && this.team[this.sprint] ? this.team[this.sprint] : [];
-          this.notesByItems = [];
-          this.mapNotesToItems();
-          this.populateVotes();
+        this.appState = appState;
+        if (this.appState) {
+          this.sprint = this.teamService.getCurrentSprint(this.appState.teamData);
+          this.notes = this.notesService.getNotes(this.appState.teamData, this.sprint);
+          this.mySelectedNotesText =
+            this.notesService.getMySelectedNotesText(this.notes, this.appState.user);
         }
       }));
   }
 
-  addVote(notesByItem: { item: string; notes: Note[]; votes: number }) {
-    if (this.totalVotes) {
-      notesByItem.votes = notesByItem.votes + 1;
-      this.totalVotes = this.totalVotes - 1;
-    } else {
-      this.showErrorMessage = true;
+  toggleVote(note: Note): void {
+    this.voteErrorAlert = null;
+
+    const updatedNote = this.notesService
+      .getUpdatedNoteWithToggledVote(this.mySelectedNotesText, note, this.appState.user);
+
+    if (updatedNote == null) {
+      this.voteErrorAlert = {
+        ...AlertConsts.danger,
+        message: 'You have used up all your votes.'
+      };
+      return;
     }
+
+    const updatedNotes = this.notesService.getNotesWithUpdatedNote(this.notes, updatedNote);
+
+    const updatedTeamData = this.teamService.getTeamDataWithUpdatedNotes(this.appState.teamData, this.sprint, updatedNotes);
+
+    this.subscriptions.push(
+      this.dataService.updateTeam(this.appState.team.name, updatedTeamData).subscribe());
   }
 
-  onDiscard() {
-    this.notesByItems.forEach(noteByItem => noteByItem.votes = 0);
-    this.totalVotes = 3;
-    this.showErrorMessage = false;
-    this.team.vote = this.team.vote.filter(item => item.user !== this.user.name);
-    this.subscriptions.push(this.dataService.updateTeam(this.user.team, this.team).subscribe());
-  }
-
-  onSubmitVote() {
-    this.notesByItems.forEach(noteByItem => {
-      if (noteByItem.votes) {
-        this.team.vote.push({item: noteByItem.item, votes: noteByItem.votes, user: this.user.name});
-      }
-    });
-
-    this.subscriptions.push(this.dataService.updateTeam(this.user.team, this.team).subscribe(() => this.voteSubmitted = true));
-  }
-
-  ngOnDestroy() {
+  ngOnDestroy(): void {
     this.subscriptions.forEach(subscription => subscription.unsubscribe());
-  }
-
-  private mapNotesToItems() {
-    this.mapNotesToNoteItems();
-  }
-
-  private mapNotesToCategories() {
-    this.notes.map(note => {
-      if (note.group) {
-        const groupIndex = this.notesByItems.map(x => x.item).indexOf(note.group);
-        if (groupIndex > -1) {
-          this.notesByItems[groupIndex].notes.push(
-            {text: note.text, by: note.by, group: note.group, at: note.at});
-        } else {
-          this.notesByItems.push({
-            item: note.group,
-            notes: [{text: note.text, by: note.by, group: note.group, at: note.at}],
-            votes: 0
-          });
-        }
-      }
-    });
-  }
-
-  private mapNotesToNoteItems() {
-    this.notes.map(note => {
-      this.notesByItems.push({
-        item: note.text,
-        notes: [{text: note.text, by: note.by, group: note.group, at: note.at}],
-        votes: 0
-      });
-    });
-
-  }
-
-  private populateVotes() {
-    this.team.vote.forEach((userVote: { item: string, votes: number, user: string }) => {
-      if (userVote.user === this.user.name) {
-        this.hasVoted = true;
-        const itemIndex = this.notesByItems.map(x => x.item).indexOf(userVote.item);
-        this.notesByItems[itemIndex].votes = userVote.votes;
-      }
-    });
   }
 }

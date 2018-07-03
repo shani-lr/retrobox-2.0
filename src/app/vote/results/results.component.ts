@@ -1,9 +1,13 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs/Subscription';
-import { DataService } from '../../shared/data.service';
-import { AppUser } from '../../core/models/user.model';
-import { AppState } from '../../core/models/app-state.model';
-import { TeamData } from '../../core/models/team.model';
+
+import { DataService } from '../../shared/services/data.service';
+import { AppState } from '../../shared/models/app-state.model';
+import { NotesService } from '../../shared/services/notes.service';
+import { TeamService } from '../../shared/services/team.service';
+import { Note } from '../../shared/models/note.model';
+import { Result } from '../../shared/models/result.model';
+import { ResultsService } from './results.service';
 
 @Component({
   selector: 'app-results',
@@ -23,38 +27,30 @@ export class ResultsComponent implements OnInit, OnDestroy {
   colorScheme = {
     domain: ['#0796ae', '#00bfd1', '#55e0d9', '#a7e790', '#e1fbae']
   };
-  results: { name: string, value: number }[] = [];
+  results: Result[] = [];
+  private appState: AppState;
+  private notes: Note[];
   private subscriptions: Subscription[] = [];
-  private user: AppUser;
-  private team: TeamData;
 
-  constructor(private dataService: DataService) {
+  constructor(private dataService: DataService, private teamService: TeamService,
+              private resultsService: ResultsService, private notesService: NotesService) {
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.subscriptions.push(
       this.dataService.getAppState().subscribe((appState: AppState) => {
-        this.user = appState.user;
-        this.team = appState.teamData;
-        this.calculateVotes();
+        this.appState = appState;
+        const sprint = this.teamService.getCurrentSprint(this.appState.teamData);
+        if (this.appState) {
+          this.notes = this.notesService.getNotes(this.appState.teamData, sprint);
+          if (this.notes) {
+            this.results = this.resultsService.calculateVoteResults(this.notes);
+          }
+        }
       }));
   }
 
-  ngOnDestroy() {
+  ngOnDestroy(): void {
     this.subscriptions.forEach(subscription => subscription.unsubscribe());
   }
-
-  private calculateVotes() {
-    this.team.vote.map((userVote: { item: string, votes: number, user: string }) => {
-      const groupIndex = this.results.map(x => x.name).indexOf(userVote.item);
-      if (groupIndex > -1) {
-        this.results[groupIndex].value = (+this.results[groupIndex].value) + userVote.votes;
-      } else {
-        this.results.push({name: userVote.item, value: userVote.votes});
-      }
-    });
-    this.results = [...this.results];
-  }
-
-
 }

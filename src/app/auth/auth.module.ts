@@ -9,8 +9,6 @@ import { AdminGuard } from './guards/admin.guard';
 import { AuthService } from './auth.service';
 import { AuthorizationGuard } from './guards/authorization.guard';
 import { LoginAdminComponent } from './login/login-admin.component';
-import { RegisterService } from './register/register.service';
-import { PermissionsService } from './permissions.service';
 
 @NgModule({
   imports: [
@@ -26,9 +24,7 @@ import { PermissionsService } from './permissions.service';
     AuthService,
     AuthenticationGuard,
     AuthorizationGuard,
-    AdminGuard,
-    RegisterService,
-    PermissionsService
+    AdminGuard
   ],
   exports: [
     LoginComponent

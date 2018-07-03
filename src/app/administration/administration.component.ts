@@ -2,11 +2,12 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs/Subscription';
 
-import { DataService } from '../shared/data.service';
-import { AppState } from '../core/models/app-state.model';
+import { DataService } from '../shared/services/data.service';
+import { AppState } from '../shared/models/app-state.model';
 import { AlertConsts } from '../shared/alert/alert.consts';
-import { Alert } from '../core/models/alert.model';
-import { AdministrationService } from './administration.service';
+import { Alert } from '../shared/models/alert.model';
+import { AppService } from '../shared/services/app.service';
+import { TeamService } from '../shared/services/team.service';
 
 @Component({
   selector: 'app-administration',
@@ -23,22 +24,25 @@ export class AdministrationComponent implements OnInit, OnDestroy {
   alert: Alert;
   private subscriptions: Subscription[] = [];
 
-  constructor(private dataService: DataService, private router: Router) {
+  constructor(private dataService: DataService, private teamService: TeamService,
+              private administrationService: AppService, private router: Router) {
   }
 
   ngOnInit(): void {
     this.subscriptions.push(this.dataService.getAppState().subscribe((appState: AppState) => {
       this.appState = appState;
-      this.isVotingOn = AdministrationService.getIsVotingOn(this.appState);
-      this.nonAdminTeamMembers = AdministrationService.getNonAdminTeamMembers(this.appState);
-      this.currentSprint = AdministrationService.getCurrentSprint(this.appState);
+      if (this.appState) {
+        this.isVotingOn = this.teamService.getIsVotingOn(this.appState.team);
+        this.nonAdminTeamMembers = this.teamService.getNonAdminTeamMembers(this.appState);
+        this.currentSprint = this.teamService.getCurrentSprint(this.appState.teamData);
+      }
     }));
   }
 
   createNewSprint(): void {
     const newSprint = `${((+this.currentSprint) + 1)}`;
     const teamDataWithNewSprint =
-      AdministrationService.getTeamDataWithNewSprint(newSprint, this.appState.teamData);
+      this.teamService.getTeamDataWithNewSprint(newSprint, this.appState.teamData);
 
     this.subscriptions.push(
       this.dataService.updateTeam(this.appState.team.name, teamDataWithNewSprint).subscribe(() => {
@@ -51,7 +55,7 @@ export class AdministrationComponent implements OnInit, OnDestroy {
 
   addAdmin(): void {
     const appWithUpdatedTeamAdmins =
-      AdministrationService.getAppWithUpdatedTeamAdmins(this.appState.app, this.appState.team, this.newAdmin);
+      this.administrationService.getAppWithUpdatedTeamAdmins(this.appState.app, this.appState.team, this.newAdmin);
 
     this.subscriptions.push(
       this.dataService.updateApplication(appWithUpdatedTeamAdmins).subscribe(() => {
@@ -63,14 +67,13 @@ export class AdministrationComponent implements OnInit, OnDestroy {
       }));
   }
 
-  resetAddAdminState() {
+  resetAddAdminState(): void {
     this.isAddAdminSelected = false;
     this.newAdmin = '';
-    this.nonAdminTeamMembers = AdministrationService.getNonAdminTeamMembers(this.appState);
+    this.nonAdminTeamMembers = this.teamService.getNonAdminTeamMembers(this.appState);
   }
 
   openVote(): void {
-    this.clearVote();
     this.changeVotingState(true);
   }
 
@@ -80,7 +83,7 @@ export class AdministrationComponent implements OnInit, OnDestroy {
 
   changeVotingState(vote: boolean): void {
     const appWithUpdatedTeamVote =
-      AdministrationService.getAppWithUpdatedTeamVote(this.appState.app, this.appState.team, vote);
+      this.administrationService.getAppWithUpdatedTeamVote(this.appState.app, this.appState.team, vote);
 
     this.subscriptions.push(
       this.dataService.updateApplication(appWithUpdatedTeamVote).subscribe(() =>
@@ -88,13 +91,6 @@ export class AdministrationComponent implements OnInit, OnDestroy {
         ...AlertConsts.success,
         message: `The vote is now ${vote ? 'open' : 'closed'}!`
       }));
-  }
-
-  clearVote() {
-    const updatedTeamData = AdministrationService.getTeamDataWithClearVote(this.appState.teamData);
-
-    this.subscriptions.push(
-      this.dataService.updateTeam(this.appState.user.team, updatedTeamData).subscribe());
   }
 
   onShowResults(): void {

@@ -1,0 +1,56 @@
+.row {
+  margin: 0;
+}
+
+.note {
+  padding: 1rem;
+
+  .card {
+    width: 13rem;
+    height: 13rem;
+    background-color: cornsilk;
+
+    .card-body {
+      padding: 0.5rem 1rem !important;
+
+      .card-title {
+        resize: none;
+        background-color: transparent;
+        border: 0;
+        width: 100%;
+        height: 10.5rem;
+        outline: none;
+        overflow-y: auto;
+        margin: 0;
+      }
+
+      .action-btn {
+        position: absolute;
+        bottom: 0.1rem;
+        cursor: pointer;
+        font-size: 1rem;
+
+        &.left-btn {
+          right: 2.5rem;
+        }
+
+        &.right-btn {
+          right: 0.5rem;
+        }
+
+        &.save {
+          color: mediumseagreen;
+        }
+        &.edit {
+          color: dodgerblue;
+        }
+        &.delete {
+          color: dimgrey;
+        }
+        &.cancel {
+          color: indianred;
+        }
+      }
+    }
+  }
+}

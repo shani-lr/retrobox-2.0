@@ -7,6 +7,7 @@ import { VotingComponent } from './voting/voting.component';
 import { VotingGuard } from './voting.guard';
 import { SharedModule } from '../shared/shared.module';
 import { ResultsComponent } from './results/results.component';
+import { ResultsService } from './results/results.service';
 
 @NgModule({
   imports: [
@@ -20,7 +21,8 @@ import { ResultsComponent } from './results/results.component';
     ResultsComponent
   ],
   providers: [
-    VotingGuard
+    VotingGuard,
+    ResultsService
   ],
   exports: [
     VotingComponent

@@ -1,11 +1,5 @@
 <div class="old-sprints" *ngIf="!selectedSprint; else showRetro">
-  <div class="row">
-    <div class="col">
-      <div class="alert alert-info" role="alert">
-        <i class="fas fa-info-circle"></i> Choose an old sprint to view its retro.
-      </div>
-    </div>
-  </div>
+  <app-alert [alert]="chooseSprintAlert"></app-alert>
   <div class="row sprint">
     <div class="col" *ngFor="let sprint of sprints">
       <button class="btn btn-info card-title" (click)="selectedSprint = sprint">Sprint {{sprint}}</button>

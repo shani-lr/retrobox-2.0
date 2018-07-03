@@ -1,5 +1,3 @@
-import { Vote } from './vote.model';
-
 export interface Team {
   name: string;
   admins: string[];
@@ -8,5 +6,4 @@ export interface Team {
 
 export interface TeamData {
   sprints: string[];
-  vote: Vote[];
 }

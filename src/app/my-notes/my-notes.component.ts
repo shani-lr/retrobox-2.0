@@ -1,67 +1,68 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { DatePipe } from '@angular/common';
 import { Subscription } from 'rxjs/Subscription';
 
-import { Note } from '../core/models/note.model';
-import { AppUser } from '../core/models/user.model';
-import { DataService } from '../shared/data.service';
-import { AppState } from '../core/models/app-state.model';
+import { Note, NoteState, MyNote } from '../shared/models/note.model';
+import { DataService } from '../shared/services/data.service';
+import { AppState } from '../shared/models/app-state.model';
+import { NotesService } from '../shared/services/notes.service';
+import { TeamService } from '../shared/services/team.service';
 
 @Component({
   selector: 'app-my-notes',
   templateUrl: './my-notes.component.html',
-  styleUrls: ['./my-notes.component.css']
+  styleUrls: ['./my-notes.component.scss']
 })
 export class MyNotesComponent implements OnInit, OnDestroy {
-  newNote: '';
-  myNotes: Note[];
+  myNotes: MyNote[];
+  noteState = NoteState;
   private appState: AppState;
   private notes: Note[];
   private sprint = '';
   private subscriptions: Subscription[] = [];
 
-  constructor(private datePipe: DatePipe, private dataService: DataService) {
+  constructor(private dataService: DataService, private teamService: TeamService,
+              private notesService: NotesService) {
   }
 
-  ngOnInit() {
-    this.subscriptions.push(this.dataService.getAppState().subscribe((appState: AppState) => {
-      this.appState = appState;
-      if (this.appState && this.appState.teamData && this.appState.teamData.sprints) {
-        this.sprint = this.appState.teamData.sprints[this.appState.teamData.sprints.length - 1];
-        this.notes = this.appState.teamData[this.sprint] ? this.appState.teamData[this.sprint] : [];
-        this.myNotes = this.appState.teamData[this.sprint] ?
-          this.appState.teamData[this.sprint]
-          .filter(note => note.by === this.appState.user.name) : [];
-      }
-    }));
+  ngOnInit(): void {
+    this.subscriptions.push(
+      this.dataService.getAppState().subscribe((appState: AppState) => {
+        this.appState = appState;
+        if (this.appState) {
+          this.sprint = this.teamService.getCurrentSprint(this.appState.teamData);
+          this.notes = this.notesService.getNotes(this.appState.teamData, this.sprint);
+          this.myNotes = this.notesService.getMyNotesWithNewNote(this.notes, this.appState.user);
+        }
+      }));
   }
 
-  onSave() {
-    if (this.newNote) {
-      const date = this.datePipe.transform(new Date(), 'MMM d');
-      this.notes.push({ text: this.newNote, by: this.appState.user.name, group: '', at: date});
-      this.appState.teamData[this.sprint] = this.notes;
-      this.subscriptions.push(
-        this.dataService.updateTeam(this.appState.user.team, this.appState.teamData).subscribe());
-      this.newNote = '';
+  onCancel(note: MyNote): void {
+    if(note.state === NoteState.New) {
+      note.updatedText = '';
+    } else if (note.state === NoteState.Edit) {
+      note.updatedText = note.text;
+      note.state = NoteState.Saved;
     }
   }
 
-  onCancel() {
-    this.newNote = '';
+  onSave(note: MyNote): void {
+    if (note && note.updatedText) {
+      const updatedNotes = this.notesService.getUpdatedNotes(this.notes, note);
+
+      const updatedTeamData =
+        this.teamService.getTeamDataWithUpdatedNotes(this.appState.teamData, this.sprint, updatedNotes);
+
+      this.subscriptions.push(
+        this.dataService.updateTeam(this.appState.user.team, updatedTeamData).subscribe());
+    }
   }
 
-  onDelete(note: Note) {
-    const noteToDeleteIndex =
-      this.notes.findIndex(x => x.by === this.appState.user.name && x.at === note.at && x.text === note.text);
-    this.notes.splice(noteToDeleteIndex, 1);
-    this.appState.teamData[this.sprint] = this.notes;
-    this.subscriptions.push(
-      this.dataService.updateTeam(this.appState.user.team, this.appState.teamData).subscribe());
-    this.newNote = '';
+  onDelete(note: MyNote): void {
+    note.state = NoteState.Deleted;
+    this.onSave(note);
   }
 
-  ngOnDestroy() {
+  ngOnDestroy(): void {
     this.subscriptions.forEach(subscription => subscription.unsubscribe());
   }
 }

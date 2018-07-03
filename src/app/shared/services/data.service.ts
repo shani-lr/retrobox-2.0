@@ -4,14 +4,13 @@ import { Observable } from 'rxjs/Observable';
 import { User } from 'firebase';
 import 'rxjs/add/observable/combineLatest';
 import 'rxjs/add/observable/from';
-import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/mergeMap';
 
-import { App } from '../core/models/app.model';
-import { AuthService } from '../auth/auth.service';
-import { AppState } from '../core/models/app-state.model';
-import { Team, TeamData } from '../core/models/team.model';
-import { AppUser } from '../core/models/user.model';
+import { App } from '../models/app.model';
+import { AuthService } from '../../auth/auth.service';
+import { AppState } from '../models/app-state.model';
+import { Team, TeamData } from '../models/team.model';
+import { AppUser } from '../models/user.model';
 
 @Injectable()
 export class DataService {
@@ -57,7 +56,7 @@ export class DataService {
     return Observable.from(this.db.collection(this.appCollection).doc(teamName).set(teamData));
   }
 
-  updateTeam(teamToUpdateName: string, team): Observable<void> {
+  updateTeam(teamToUpdateName: string, team: TeamData): Observable<void> {
     return Observable.from(this.db.collection('app').doc(teamToUpdateName).update(team));
   }
 

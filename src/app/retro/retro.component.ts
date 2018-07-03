@@ -1,122 +1,104 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { Subscription } from 'rxjs/Subscription';
 import { DragulaService } from 'ng2-dragula';
-import 'rxjs/add/operator/map';
 
-import { Note } from '../core/models/note.model';
-import { DataService } from '../shared/data.service';
-import { AppState } from '../core/models/app-state.model';
+import { Note } from '../shared/models/note.model';
+import { DataService } from '../shared/services/data.service';
+import { AppState } from '../shared/models/app-state.model';
+import { Alert } from '../shared/models/alert.model';
+import { AlertConsts } from '../shared/alert/alert.consts';
+import { TeamService } from '../shared/services/team.service';
+import { NotesService } from '../shared/services/notes.service';
+import { Group } from '../shared/models/group.model';
 
 @Component({
   selector: 'app-retro',
   templateUrl: './retro.component.html',
-  styleUrls: ['./retro.component.css'],
+  styleUrls: ['./retro.component.scss'],
   viewProviders: [DragulaService]
 })
 export class RetroComponent implements OnInit, OnDestroy {
   @Input() oldSprint: string;
   @Output() goBack = new EventEmitter();
-  notesByGroups: { group: string, notes: Note[] }[] = [];
+  groups: Group[] = [];
   sprint = '';
-  showAlertMessage: boolean;
+  noTitleAlert: Alert;
   private notes: Note[];
   private appState: AppState;
   private subscriptions: Subscription[] = [];
 
-  constructor(private dragulaService: DragulaService, private dataService: DataService) {
+  constructor(private dragulaService: DragulaService, private dataService: DataService,
+              private teamService: TeamService, private notesService: NotesService) {
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.configureDragula();
 
     this.subscriptions.push(
       this.dataService.getAppState().subscribe((appState: AppState) => {
         this.appState = appState;
-        if (this.appState && this.appState.teamData && this.appState.teamData.sprints) {
-          this.sprint = this.oldSprint ? this.oldSprint : this.appState.teamData.sprints[this.appState.teamData.sprints.length - 1];
-          this.notes = this.appState.teamData[this.sprint] ? this.appState.teamData[this.sprint] : [];
-          this.mapNotesToGroups();
+        if (this.appState) {
+          this.sprint = this.oldSprint || this.teamService.getCurrentSprint(this.appState.teamData);
+          this.notes = this.notesService.getNotes(this.appState.teamData, this.sprint);
+          this.groups = this.notesService.mapNotesToGroups(this.notes);
         }
       }));
   }
 
-  private configureDragula() {
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(subscription => subscription.unsubscribe());
+  }
+
+  private configureDragula(): void {
     this.dragulaService.setOptions('first-bag', {
-      moves: function (el, container, handle): boolean {
-        return el.tagName !== 'INPUT';
-      },
-      accepts: function (el, target, source, sibling): boolean {
+      moves: (el, container, handle) => el.tagName !== 'INPUT',
+      accepts: (el, target, source, sibling) => {
         if (source !== target) {
           const title = target.children[0].value;
           if (!title) {
-            this.showAlertMessage = true;
-            setTimeout(function () {
-              this.showAlertMessage = false;
-            }.bind(this), 10000);
+            this.noTitleAlert = {
+              ...AlertConsts.warning,
+              message: 'Please enter a group title before grouping notes.'
+            };
+            setTimeout(() => this.noTitleAlert = null, 10000);
             return false;
           }
         }
-        this.showAlertMessage = false;
+        this.noTitleAlert = null;
         return true;
-      }.bind(this)
+      }
     });
 
     this.subscriptions.push(
       this.dragulaService.drop.subscribe((value) => {
         const destination = value[2];
         const source = value[3];
-        const inputTitle = destination.children[0];
-        this.removeGroup(source);
-        this.saveGroup(inputTitle);
+        const titleInputElement = destination.children[0];
+        if (this.shouldRemoveGroup(source)) {
+          source.remove();
+        }
+        this.saveGroup(titleInputElement);
       }));
   }
 
-  removeGroup(group) {
-    if (group.childElementCount < 2) {
-      group.remove();
-    }
+  private shouldRemoveGroup(group): boolean {
+    return group.childElementCount < 2;
   }
 
-  saveGroup(inputTitle) {
-    const title = inputTitle.value;
-    const group = inputTitle.parentElement;
-    const groupNotesElements = group.querySelectorAll('.note .card-title');
-    const groupNotes = Array.from(groupNotesElements, (groupNoteElement: HTMLElement) => groupNoteElement.textContent);
-    this.notes.forEach(function (note: Note) {
-      if (groupNotes.indexOf(note.text) > -1) {
-        note.group = title;
-      }
-    });
-    this.appState.teamData[this.sprint] = this.notes;
+  private saveGroup(titleInputElement): void {
+    const title = titleInputElement.value;
+    const group = titleInputElement.parentElement;
+    const groupNotesElements = group.querySelectorAll('.card-title');
+    const groupNotes = Array.from(groupNotesElements,
+      (groupNoteElement: HTMLElement) => groupNoteElement.textContent);
+
+    const updatedNotes = this.notesService.getNotesWithUpdatedGroups(this.notes, groupNotes, title);
+
+    const updatedTeamData =
+      this.teamService.getTeamDataWithUpdatedNotes(this.appState.teamData, this.sprint, updatedNotes);
+
     this.subscriptions.push(
-      this.dataService.updateTeam(this.appState.user.team, this.appState.teamData).subscribe());
-    this.showAlertMessage = false;
-  }
-
-  ngOnDestroy() {
-    this.subscriptions.forEach(subscription => subscription.unsubscribe());
-  }
-
-  private mapNotesToGroups() {
-    this.notesByGroups = [];
-    this.notes.map(note => {
-      if (!note.group) {
-        this.notesByGroups.push({
-          group: '', notes:
-            [{text: note.text, by: note.by, at: note.at, group: ''}]
-        });
-      } else {
-        const groupIndex = this.notesByGroups.map(x => x.group).indexOf(note.group);
-        if (groupIndex > -1) {
-          this.notesByGroups[groupIndex].notes.push(
-            {text: note.text, by: note.by, group: note.group, at: note.at});
-        } else {
-          this.notesByGroups.push({
-            group: note.group, notes:
-              [{text: note.text, by: note.by, group: note.group, at: note.at}]
-          });
-        }
-      }
-    });
+      this.dataService.updateTeam(this.appState.user.team, updatedTeamData).subscribe());
+    this.noTitleAlert = null;
   }
 }

@@ -1,36 +1,28 @@
-<div>
-  <div class="row">
-    <div class="col retro-title">
-      <h3>Sprint {{sprint}}</h3>
-    </div>
+<div class="row">
+  <div class="col retro-title">
+    <h3>Sprint {{sprint}}</h3>
   </div>
-  <div class="row" *ngIf="showAlertMessage">
-    <div class="col">
-      <div class="alert alert-warning" role="alert">
-        <i class="fas fa-exclamation-triangle"></i> Please enter a group title before grouping notes.
-      </div>
-    </div>
-  </div>
-  <div class="row grid">
-    <div class="col-md-auto container" *ngFor="let group of notesByGroups" [dragula]='"first-bag"'>
-      <input type="text" placeholder="Add title..."
-             (focusout)="saveGroup(inputTitle)" (keydown.enter)="saveGroup(inputTitle);false"
-             #inputTitle value="{{group.group}}">
-      <div *ngFor="let note of group.notes" class="note">
-        <div class="card">
-          <div class="card-body">
-            <p class="card-title">{{note.text}}</p>
-            <p class="card-text">by {{note.by.split(' ')[0]}} at {{note.at}}</p>
-          </div>
+</div>
+<app-alert [alert]="noTitleAlert"></app-alert>
+<div class="row">
+  <div class="col-md-auto notes-group" *ngFor="let group of groups" [dragula]='"first-bag"'>
+    <input type="text" placeholder="Add title..." class="w-100"
+           (focusout)="saveGroup(inputTitle)" (keydown.enter)="saveGroup(inputTitle);false"
+           #inputTitle value="{{group.group}}">
+    <div *ngFor="let note of group.notes">
+      <div class="card">
+        <div class="card-body">
+          <p class="card-title w-100">{{note.text}}</p>
+          <p class="card-text">by {{note.by.split(' ')[0]}} at {{note.at}}</p>
         </div>
       </div>
     </div>
   </div>
-  <div class="row">
-    <div class="col">
-      <button class="btn btn-info float-right margin-1" *ngIf="oldSprint" (click)="goBack.emit()">
-        <i class="fas fa-arrow-circle-left"></i> Back
-      </button>
-    </div>
+</div>
+<div *ngIf="oldSprint" class="row">
+  <div class="col">
+    <button class="btn btn-info float-right margin-1" (click)="goBack.emit()">
+      <i class="fas fa-arrow-circle-left"></i> Back
+    </button>
   </div>
 </div>

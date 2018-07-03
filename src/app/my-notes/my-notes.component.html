@@ -1,21 +1,23 @@
-<div class="my-notes">
-  <div class="row">
-    <div class="col-md-auto note">
-      <div class="card">
-        <div class="card-body">
+<div class="row">
+  <div class="col-md-auto note" *ngFor="let note of myNotes; let i = index">
+    <div class="card">
+      <div class="card-body">
             <textarea type="text" class="card-title" placeholder="Add new note here..."
-                      [(ngModel)]="newNote" (keydown.enter)="onSave();false"></textarea>
-          <div class="save" (click)="onSave()"><i class="fas fa-check-circle"></i></div>
-          <div class="cancel" (click)="onCancel()"><i class="fas fa-times-circle"></i></div>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-auto note" *ngFor="let note of myNotes">
-      <div class="card">
-        <div class="card-body">
-          <h6 class="card-title">{{note.text}}</h6>
-          <div class="delete" (click)="onDelete(note)"><i class="fas fa-trash-alt"></i></div>
-        </div>
+                      [(ngModel)]="note.updatedText" (keydown.enter)="onSave(note);false"
+                      [disabled]="note.state === noteState.Saved"></textarea>
+        <ng-container *ngIf="note.state === noteState.New || note.state === noteState.Edit; else showEditDeleteButtons">
+          <div class="action-btn left-btn save"
+               (click)="onSave(note)"><i class="fas fa-check-circle"></i></div>
+          <div class="action-btn right-btn cancel"
+               (click)="onCancel(note)"><i class="fas fa-times-circle"></i></div>
+        </ng-container>
+        <ng-template #showEditDeleteButtons>
+          <div></div>
+          <div class="action-btn left-btn edit"
+               (click)="note.state = noteState.Edit"><i class="fas fa-edit"></i></div>
+          <div class="action-btn right-btn delete"
+               (click)="onDelete(note)"><i class="fas fa-trash-alt"></i></div>
+        </ng-template>
       </div>
     </div>
   </div>

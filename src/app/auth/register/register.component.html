@@ -1,6 +1,6 @@
 <div class="container">
   <app-alert [alert]="registerAlert"></app-alert>
-  <div class="row margin-top-1em">
+  <div class="row margin-top">
     <div class="col-md-auto d-inline-block padding-right-0">
       <div class="d-inline-block center-vertically">Join an existing team:</div>
     </div>
@@ -24,7 +24,7 @@
   </div>
   <div *ngIf="showCreateTeam">
     <div class="row">
-      <div class="col-md-auto d-inline-block margin-top-1em">
+      <div class="col-md-auto d-inline-block margin-top">
         <div class="div d-inline-block padding-right-1em">Create a new one:</div>
         <input type="text" class="form-control d-inline-block team-input"
                placeholder="Team name" [(ngModel)]="teamToCreateName">

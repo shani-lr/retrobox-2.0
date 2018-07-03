@@ -3,15 +3,16 @@ import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, Router } from
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/map';
 
-import { DataService } from '../../shared/data.service';
-import { AppState } from '../../core/models/app-state.model';
-import { PermissionsService } from '../permissions.service';
-
+import { DataService } from '../../shared/services/data.service';
+import { AppState } from '../../shared/models/app-state.model';
+import { PermissionsService } from '../../shared/services/permissions.service';
 
 @Injectable()
 export class AuthorizationGuard implements CanActivate {
 
-  constructor(private dataService: DataService, private router: Router) {
+  constructor(private dataService: DataService,
+              private permissionsService: PermissionsService,
+              private router: Router) {
   }
 
   canActivate(
@@ -19,7 +20,7 @@ export class AuthorizationGuard implements CanActivate {
     state: RouterStateSnapshot): Observable<boolean> | Promise<boolean> | boolean {
 
     return this.dataService.getAppState().map((appState: AppState) => {
-      const isRegistered = PermissionsService.isRegistered(appState);
+      const isRegistered = this.permissionsService.isRegistered(appState);
       if (!isRegistered) {
         this.router.navigate(['/register']);
       }

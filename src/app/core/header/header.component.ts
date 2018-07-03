@@ -2,11 +2,11 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { AuthService } from '../../auth/auth.service';
-import { DataService } from '../../shared/data.service';
+import { DataService } from '../../shared/services/data.service';
 import { Subscription } from 'rxjs/Subscription';
-import { AppState } from '../models/app-state.model';
-import { PermissionsService } from '../../auth/permissions.service';
-import { AdministrationService } from '../../administration/administration.service';
+import { AppState } from '../../shared/models/app-state.model';
+import { PermissionsService } from '../../shared/services/permissions.service';
+import { TeamService } from '../../shared/services/team.service';
 
 @Component({
   selector: 'app-header',
@@ -20,7 +20,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
   isVotingOn: boolean;
   private subscriptions: Subscription[] = [];
 
-  constructor(private authService: AuthService, private dataService: DataService, private router: Router) {
+  constructor(private authService: AuthService, private dataService: DataService,
+              private permissionsService: PermissionsService, private teamService: TeamService,
+              private router: Router) {
   }
 
   ngOnInit(): void {
@@ -30,9 +32,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
     }));
     this.subscriptions.push(this.dataService.getAppState()
       .subscribe((appState: AppState) => {
-        this.isRegistered = PermissionsService.isRegistered(appState);
-        this.isAdmin = PermissionsService.isAdmin(appState);
-        this.isVotingOn = AdministrationService.getIsVotingOn(appState);
+        if (appState) {
+          this.isRegistered = this.permissionsService.isRegistered(appState);
+          this.isAdmin = this.permissionsService.isAdmin(appState);
+          this.isVotingOn = this.teamService.getIsVotingOn(appState.team);
+        }
       }));
   }
 
