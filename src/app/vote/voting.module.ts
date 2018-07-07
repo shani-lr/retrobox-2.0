@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { NgxSpinnerModule } from 'ngx-spinner';
 
 import { VotingComponent } from './voting/voting.component';
 import { VotingGuard } from './voting.guard';
@@ -14,6 +15,7 @@ import { ResultsService } from './results/results.service';
     CommonModule,
     SharedModule,
     NgxChartsModule,
+    NgxSpinnerModule,
     BrowserAnimationsModule
   ],
   declarations: [

@@ -69,15 +69,11 @@ export class NotesService {
     return null;
   }
 
-  getUpdatedNoteWithToggledVote(mySelectedNotesText: string[], note: Note, user: AppUser): Note {
-    if (mySelectedNotesText && note && user)
+  getUpdatedNoteWithToggledVote(mySelectedNotesText: string[], notes: Note[], noteText: string, user: AppUser): Note {
+    if (mySelectedNotesText && notes && noteText && user)
     {
-      const totalVotes = mySelectedNotesText.length;
+      const note = notes.find(x => x.text === noteText);
       const shouldAddVote = this.shouldAddVote(mySelectedNotesText, note);
-      if (shouldAddVote && totalVotes === 3) {
-        return null;
-      }
-
       return shouldAddVote ? this.addUserVoteToNote(note, user) : this.clearUserVoteFromNote(note, user);
     }
   }
@@ -87,6 +83,10 @@ export class NotesService {
     const updatedNotes = [...notes];
     updatedNotes[noteToUpdateIndex] = updatedNote;
     return updatedNotes;
+  }
+
+  shouldAddVote(mySelectedNotesText: string[], note: Note): boolean {
+    return !mySelectedNotesText.includes(note.text);
   }
 
   private getMyNotes(notes: Note[], user: AppUser): MyNote[] {
@@ -166,10 +166,6 @@ export class NotesService {
       updatedNote.group = title;
     }
     return updatedNote;
-  }
-
-  private shouldAddVote(mySelectedNotesText: string[], note: Note): boolean {
-    return !mySelectedNotesText.includes(note.text);
   }
 
   private clearUserVoteFromNote(note: Note, user: AppUser): Note {

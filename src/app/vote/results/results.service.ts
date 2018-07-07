@@ -5,8 +5,6 @@ import { Result } from '../../shared/models/result.model';
 @Injectable()
 export class ResultsService {
 
-  constructor() { }
-
   calculateVoteResults(notes: Note[]) {
     const flatResults = this.getFlatResults(notes);
     let results = [];

@@ -8,6 +8,7 @@ import { AlertConsts } from '../../shared/alert/alert.consts';
 import { Alert } from '../../shared/models/alert.model';
 import { TeamService } from '../../shared/services/team.service';
 import { NotesService } from '../../shared/services/notes.service';
+import { NgxSpinnerService } from 'ngx-spinner';
 
 @Component({
   selector: 'app-voting',
@@ -27,7 +28,7 @@ export class VotingComponent implements OnInit, OnDestroy {
   private appState: AppState;
 
   constructor(private dataService: DataService, private teamService: TeamService,
-              private notesService: NotesService) {
+              private notesService: NotesService, private spinner: NgxSpinnerService) {
   }
 
   ngOnInit(): void {
@@ -45,11 +46,8 @@ export class VotingComponent implements OnInit, OnDestroy {
 
   toggleVote(note: Note): void {
     this.voteErrorAlert = null;
-
-    const updatedNote = this.notesService
-      .getUpdatedNoteWithToggledVote(this.mySelectedNotesText, note, this.appState.user);
-
-    if (updatedNote == null) {
+    if (this.mySelectedNotesText.length === 3 &&
+      this.notesService.shouldAddVote(this.mySelectedNotesText, note)) {
       this.voteErrorAlert = {
         ...AlertConsts.danger,
         message: 'You have used up all your votes.'
@@ -57,12 +55,14 @@ export class VotingComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const updatedNotes = this.notesService.getNotesWithUpdatedNote(this.notes, updatedNote);
-
-    const updatedTeamData = this.teamService.getTeamDataWithUpdatedNotes(this.appState.teamData, this.sprint, updatedNotes);
+    this.spinner.show();
 
     this.subscriptions.push(
-      this.dataService.updateTeam(this.appState.team.name, updatedTeamData).subscribe());
+      this.dataService.updateTeamWithToggledVoteInTransaction(
+        this.mySelectedNotesText, note.text, this.appState.user, this.appState.team.name, this.sprint)
+        .subscribe(
+          () => this.spinner.hide()
+        ));
   }
 
   ngOnDestroy(): void {
