@@ -11,11 +11,12 @@ export class ResultsService {
 
     flatResults.map((currentResult: Result) => {
       const index = this.findItem(results, currentResult);
-      let item = currentResult;
       if (index > -1) {
-        item = this.getUpdatedItem(currentResult, results[index]);
+        const item = this.getUpdatedItem(currentResult, results[index]);
+        results = [...results.slice(0, index - 1), item, ...results.slice(index + 1)];
+      } else {
+        results = [...results, currentResult];
       }
-      results = [...results.slice(0, index - 1), item, ...results.slice(index + 1)];
     });
     return results;
   }
