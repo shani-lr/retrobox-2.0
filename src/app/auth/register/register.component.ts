@@ -1,7 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs/Subscription';
-import { User } from 'firebase';
 
 import { Team, TeamData } from '../../shared/models/team.model';
 import { AuthService } from '../auth.service';
@@ -18,17 +17,17 @@ import { AppService } from '../../shared/services/app.service';
   styleUrls: ['./register.component.scss']
 })
 export class RegisterComponent implements OnInit, OnDestroy {
+  app: App;
+  userName: string;
   registerAlert = {
     ...AlertConsts.info,
     message: 'Seems like you don\'t have a team 😢 Join one!'
   };
+  showCreateTeam = false;
   teamToJoin = '';
   teamToCreateSprint = '';
   teamToCreateName = '';
-  showCreateTeam = false;
-  app: App;
   private subscriptions: Subscription[] = [];
-  private user: User;
 
   constructor(private authService: AuthService, private dataService: DataService,
               private teamService: TeamService, private appService: AppService,
@@ -37,23 +36,27 @@ export class RegisterComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.subscriptions.push(
-      this.authService.authState.subscribe((user: User) => this.user = user));
+      this.authService.getLoggedInUserName().subscribe((userName: string) => this.userName = userName));
 
     this.subscriptions.push(
       this.dataService.getAppState().subscribe((appState: AppState) => this.app = appState.app));
   }
 
   createTeam(): void {
-    const teamToCreate: Team = this.teamService.getTeamToCreate(this.teamToCreateName, this.user.displayName);
-    const updateApplication: App = this.appService.getUpdatedApplicationWithTeamToCreate(this.app, teamToCreate);
+    const teamToCreate: Team =
+      this.teamService.getTeamToCreate(this.teamToCreateName, this.userName);
+    const updatedApplication: App =
+      this.appService.getUpdatedApplicationWithTeamToCreate(this.app, teamToCreate);
 
     this.subscriptions.push(
-      this.dataService.updateApplication(updateApplication).subscribe(() => {
+      this.dataService.updateApplication(updatedApplication).subscribe(() => {
           const teamData: TeamData = this.teamService.getTeamToCreateData(this.teamToCreateSprint);
           this.subscriptions.push(this.dataService.createTeam(this.teamToCreateName, teamData)
             .subscribe(() => {
               this.showCreateTeam = false;
               this.teamToJoin = this.teamToCreateName;
+              this.teamToCreateName = '';
+              this.teamToCreateSprint = '';
             }));
         }
       ));
@@ -61,7 +64,7 @@ export class RegisterComponent implements OnInit, OnDestroy {
 
   onJoinTeam(): void {
     const appToUpdate = this.appService
-      .getUpdatedApplicationWithUserToAdd(this.app, this.user.displayName, this.teamToJoin);
+      .getUpdatedApplicationWithUserToAdd(this.app, this.userName, this.teamToJoin);
     this.subscriptions.push(this.dataService.updateApplication(appToUpdate).subscribe());
     this.router.navigate(['/my-notes']);
   }

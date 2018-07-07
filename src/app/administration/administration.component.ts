@@ -25,7 +25,7 @@ export class AdministrationComponent implements OnInit, OnDestroy {
   private subscriptions: Subscription[] = [];
 
   constructor(private dataService: DataService, private teamService: TeamService,
-              private administrationService: AppService, private router: Router) {
+              private appService: AppService, private router: Router) {
   }
 
   ngOnInit(): void {
@@ -55,7 +55,7 @@ export class AdministrationComponent implements OnInit, OnDestroy {
 
   addAdmin(): void {
     const appWithUpdatedTeamAdmins =
-      this.administrationService.getAppWithUpdatedTeamAdmins(this.appState.app, this.appState.team, this.newAdmin);
+      this.appService.getAppWithUpdatedTeamAdmins(this.appState.app, this.appState.team, this.newAdmin);
 
     this.subscriptions.push(
       this.dataService.updateApplication(appWithUpdatedTeamAdmins).subscribe(() => {
@@ -67,12 +67,6 @@ export class AdministrationComponent implements OnInit, OnDestroy {
       }));
   }
 
-  resetAddAdminState(): void {
-    this.isAddAdminSelected = false;
-    this.newAdmin = '';
-    this.nonAdminTeamMembers = this.teamService.getNonAdminTeamMembers(this.appState);
-  }
-
   openVote(): void {
     this.changeVotingState(true);
   }
@@ -81,23 +75,29 @@ export class AdministrationComponent implements OnInit, OnDestroy {
     this.changeVotingState(false);
   }
 
-  changeVotingState(vote: boolean): void {
-    const appWithUpdatedTeamVote =
-      this.administrationService.getAppWithUpdatedTeamVote(this.appState.app, this.appState.team, vote);
-
-    this.subscriptions.push(
-      this.dataService.updateApplication(appWithUpdatedTeamVote).subscribe(() =>
-        this.alert = {
-        ...AlertConsts.success,
-        message: `The vote is now ${vote ? 'open' : 'closed'}!`
-      }));
-  }
-
   onShowResults(): void {
     this.router.navigate(['vote-results']);
   }
 
   ngOnDestroy(): void {
     this.subscriptions.forEach(subscription => subscription.unsubscribe());
+  }
+
+  private resetAddAdminState(): void {
+    this.isAddAdminSelected = false;
+    this.newAdmin = '';
+    this.nonAdminTeamMembers = this.teamService.getNonAdminTeamMembers(this.appState);
+  }
+
+  private changeVotingState(vote: boolean): void {
+    const appWithUpdatedTeamVote =
+      this.appService.getAppWithUpdatedTeamVote(this.appState.app, this.appState.team, vote);
+
+    this.subscriptions.push(
+      this.dataService.updateApplication(appWithUpdatedTeamVote).subscribe(() =>
+        this.alert = {
+          ...AlertConsts.success,
+          message: `The vote is now ${vote ? 'open' : 'closed'}!`
+        }));
   }
 }

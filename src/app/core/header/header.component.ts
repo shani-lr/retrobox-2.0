@@ -28,8 +28,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.subscriptions.push(
       this.authService.isLoggedIn().subscribe((isLoggedIn: boolean) => {
-      this.isLoggedIn = isLoggedIn;
-    }));
+        this.isLoggedIn = isLoggedIn;
+      }));
     this.subscriptions.push(this.dataService.getAppState()
       .subscribe((appState: AppState) => {
         if (appState) {
