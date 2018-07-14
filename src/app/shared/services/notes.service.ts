@@ -26,7 +26,7 @@ export class NotesService {
     return null;
   }
 
-  getUpdatedNotes(notes: Note[], note: MyNote): Note[] {
+  getNotesWithUpdatedUserNotes(notes: Note[], note: MyNote): Note[] {
     let updatedNotes;
     if (note.state === NoteState.New) {
       updatedNotes = this.getNotesWithNewNote(notes, note);

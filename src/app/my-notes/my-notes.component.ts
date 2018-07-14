@@ -36,24 +36,24 @@ export class MyNotesComponent implements OnInit, OnDestroy {
       }));
   }
 
-  onCancel(note: MyNote): void {
-    if(note.state === NoteState.New) {
-      note.updatedText = '';
-    } else if (note.state === NoteState.Edit) {
-      note.updatedText = note.text;
-      note.state = NoteState.Saved;
-    }
-  }
-
   onSave(note: MyNote): void {
-    if (note && note.updatedText) {
-      const updatedNotes = this.notesService.getUpdatedNotes(this.notes, note);
+    if (note) {
+      const updatedNotes = this.notesService.getNotesWithUpdatedUserNotes(this.notes, note);
 
       const updatedTeamData =
         this.teamService.getTeamDataWithUpdatedNotes(this.appState.teamData, this.sprint, updatedNotes);
 
       this.subscriptions.push(
         this.dataService.updateTeam(this.appState.user.team, updatedTeamData).subscribe());
+    }
+  }
+
+  onCancel(note: MyNote): void {
+    if(note.state === NoteState.New) {
+      note.updatedText = '';
+    } else if (note.state === NoteState.Edit) {
+      note.updatedText = note.text;
+      note.state = NoteState.Saved;
     }
   }
 
