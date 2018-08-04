@@ -15,9 +15,7 @@ export class AuthorizationGuard implements CanActivate {
               private router: Router) {
   }
 
-  canActivate(
-    next: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot): Observable<boolean> | Promise<boolean> | boolean {
+  canActivate(): Observable<boolean> {
 
     return this.dataService.getAppState().map((appState: AppState) => {
       const isRegistered = this.permissionsService.isRegistered(appState);

@@ -46,6 +46,7 @@ export class DataService {
         },
         (appState: AppState, teamData: TeamData) => {
           return {
+
             ...appState,
             teamData: teamData
           };
