@@ -18,8 +18,11 @@ export class AdministrationComponent implements OnInit, OnDestroy {
   appState: AppState;
   currentSprint: string;
   isAddAdminSelected: boolean;
+  isRemoveTeamMemberSelected: boolean;
   newAdmin: string;
+  userToRemove: string;
   nonAdminTeamMembers: string[];
+  teamMembers: string[];
   isVotingOn: boolean;
   alert: Alert;
   private subscriptions: Subscription[] = [];
@@ -34,6 +37,7 @@ export class AdministrationComponent implements OnInit, OnDestroy {
       if (this.appState) {
         this.isVotingOn = this.teamService.getIsVotingOn(this.appState.team);
         this.nonAdminTeamMembers = this.teamService.getNonAdminTeamMembers(this.appState);
+        this.teamMembers = this.teamService.getTeamMembers(this.appState);
         this.currentSprint = this.teamService.getCurrentSprint(this.appState.teamData);
       }
     }));
@@ -99,5 +103,26 @@ export class AdministrationComponent implements OnInit, OnDestroy {
           ...AlertConsts.success,
           message: `The vote is now ${vote ? 'open' : 'closed'}!`
         }));
+  }
+
+  removeTeamMember() {
+    const appWithUpdatedTeamMembers =
+      this.appService.getAppWithUpdatedTeamMembers(this.appState.app, this.appState.team, this.userToRemove);
+
+    this.subscriptions.push(
+      this.dataService.updateApplication(appWithUpdatedTeamMembers).subscribe(() => {
+        this.alert = {
+          ...AlertConsts.success,
+          message: `${this.userToRemove} was removed successfully.`
+        };
+        this.resetRemoveTeamMemberState();
+      })
+    )
+  }
+
+  private resetRemoveTeamMemberState(): void {
+    this.isRemoveTeamMemberSelected = false;
+    this.userToRemove = '';
+    this.teamMembers = this.teamService.getTeamMembers(this.appState);
   }
 }

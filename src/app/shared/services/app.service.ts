@@ -45,6 +45,20 @@ export class AppService {
     return this.getAppWithUpdatedTeam(app, currentTeamWithUpdatedVote);
   }
 
+  getAppWithUpdatedTeamMembers(app: App, team: Team, userToRemove: string) {
+    const updatedTeam = {
+      ...team,
+      admins: [...team.admins].filter(admin => admin !== userToRemove)
+    };
+
+    const appWithUpdatedTeam = this.getAppWithUpdatedTeam(app, updatedTeam);
+
+    return {
+      ...appWithUpdatedTeam,
+      users: appWithUpdatedTeam.users.filter(u => u.name !== userToRemove)
+    }
+  }
+
   private getAppWithUpdatedTeam(app: App, updatedTeam: Team): App {
     const teamsWithoutTeamToUpdate =
       app.teams.filter(team => team.name !== updatedTeam.name);
@@ -54,5 +68,4 @@ export class AppService {
       teams: [...teamsWithoutTeamToUpdate, updatedTeam]
     };
   }
-
 }

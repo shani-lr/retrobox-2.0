@@ -22,7 +22,7 @@ describe('LoginAdminComponent', () => {
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
-  
+
   it('should create', () => {
     // assert
     expect(component).toBeTruthy();
