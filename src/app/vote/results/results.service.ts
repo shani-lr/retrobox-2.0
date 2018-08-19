@@ -13,7 +13,7 @@ export class ResultsService {
       const index = this.findItem(results, currentResult);
       if (index > -1) {
         const item = this.getUpdatedItem(currentResult, results[index]);
-        results = [...results.slice(0, index - 1), item, ...results.slice(index + 1)];
+        results = [...results.slice(0, index), item, ...results.slice(index + 1)];
       } else {
         results = [...results, currentResult];
       }

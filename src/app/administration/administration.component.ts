@@ -25,6 +25,7 @@ export class AdministrationComponent implements OnInit, OnDestroy {
   teamMembers: string[];
   isVotingOn: boolean;
   alert: Alert;
+  font: string;
   private subscriptions: Subscription[] = [];
 
   constructor(private dataService: DataService, private teamService: TeamService,
@@ -39,6 +40,7 @@ export class AdministrationComponent implements OnInit, OnDestroy {
         this.nonAdminTeamMembers = this.teamService.getNonAdminTeamMembers(this.appState);
         this.teamMembers = this.teamService.getTeamMembers(this.appState);
         this.currentSprint = this.teamService.getCurrentSprint(this.appState.teamData);
+        this.font = this.appState.user.font;
       }
     }));
   }

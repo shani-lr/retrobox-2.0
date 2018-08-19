@@ -35,4 +35,8 @@ export class TeamServiceMock {
     return undefined;
   }
 
+  getTeamMembers(appState: AppState): string[] | any[] {
+    return undefined;
+  }
+
 }

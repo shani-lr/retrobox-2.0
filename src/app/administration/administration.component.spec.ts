@@ -169,7 +169,7 @@ describe('AdministrationComponent', () => {
     tick();
 
     // assert
-    expect(location.path()).toBe('/vote-results');
+    expect(location.path ()).toBe('/vote-results');
   }));
 
 

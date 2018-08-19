@@ -1,11 +1,13 @@
-<div class="old-sprints" *ngIf="!selectedSprint; else showRetro">
-  <app-alert [alert]="chooseSprintAlert"></app-alert>
-  <div class="row sprint">
-    <div class="col" *ngFor="let sprint of sprints">
-      <button class="btn btn-info card-title" (click)="selectedSprint = sprint">Sprint {{sprint}}</button>
+<div [ngClass]="{'open-sans': font && font === 'open-sans', 'indie-flower': font && font === 'indie-flower'}">
+  <div class="old-sprints" *ngIf="!selectedSprint; else showRetro">
+    <app-alert [alert]="chooseSprintAlert"></app-alert>
+    <div class="row sprint">
+      <div class="col" *ngFor="let sprint of sprints">
+        <button class="btn btn-info card-title" (click)="selectedSprint = sprint">Sprint {{sprint}}</button>
+      </div>
     </div>
   </div>
+  <ng-template #showRetro>
+    <app-retro [oldSprint]="selectedSprint" (goBack)="selectedSprint = undefined"></app-retro>
+  </ng-template>
 </div>
-<ng-template #showRetro>
-  <app-retro [oldSprint]="selectedSprint" (goBack)="selectedSprint = undefined"></app-retro>
-</ng-template>

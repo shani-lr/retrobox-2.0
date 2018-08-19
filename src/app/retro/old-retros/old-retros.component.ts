@@ -19,6 +19,7 @@ export class OldRetrosComponent implements OnInit, OnDestroy {
     ...AlertConsts.info,
     message: 'Choose an old sprint to view its retro.'
   };
+  font: string;
   private appStateSubscription: Subscription;
 
   constructor(private dataService: DataService, private teamService: TeamService) {
@@ -29,6 +30,7 @@ export class OldRetrosComponent implements OnInit, OnDestroy {
       this.dataService.getAppState().subscribe((appState: AppState) => {
         if (appState) {
           this.sprints = this.teamService.getOldSprints(appState.teamData);
+          this.font = appState.user.font;
         }
       });
   }

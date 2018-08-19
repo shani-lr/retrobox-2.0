@@ -23,6 +23,7 @@ export class RetroComponent implements OnInit, OnDestroy {
   groups: Group[] = [];
   sprint = '';
   noTitleAlert: Alert;
+  font: string;
   private notes: Note[];
   private appState: AppState;
   private subscriptions: Subscription[] = [];
@@ -41,6 +42,7 @@ export class RetroComponent implements OnInit, OnDestroy {
           this.sprint = this.oldSprint || this.teamService.getCurrentSprint(this.appState.teamData);
           this.notes = this.notesService.getNotes(this.appState.teamData, this.sprint);
           this.groups = this.notesService.mapNotesToGroups(this.notes);
+          this.font = this.appState.user.font;
         }
       }));
   }

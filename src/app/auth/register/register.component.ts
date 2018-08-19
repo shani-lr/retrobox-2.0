@@ -65,7 +65,9 @@ export class RegisterComponent implements OnInit, OnDestroy {
   onJoinTeam(): void {
     const appToUpdate = this.appService
       .getUpdatedApplicationWithUserToAdd(this.app, this.userName, this.teamToJoin);
-    this.subscriptions.push(this.dataService.updateApplication(appToUpdate).subscribe());
+    this.subscriptions.push(
+      this.dataService.updateApplication(appToUpdate).subscribe()
+    );
     this.router.navigate(['/my-notes']);
   }
 

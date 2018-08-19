@@ -1,35 +1,40 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-  <div class="navbar-brand cursor-pointer outline-none" routerLink="/">RetroBox</div>
-  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-    <span class="navbar-toggler-icon"></span>
-  </button>
-  <div class="collapse navbar-collapse" id="navbarSupportedContent">
-    <ul class="navbar-nav mr-auto">
-      <li *ngIf="isLoggedIn" class="nav-item cursor-pointer">
-        <a routerLink="my-notes" routerLinkActive="active" class="nav-link">My Notes</a>
-      </li>
-      <li *ngIf="isAdmin" class="nav-item cursor-pointer">
-        <a routerLink="retro" routerLinkActive="active" class="nav-link">Retro</a>
-      </li>
-      <li *ngIf="isVotingOn" class="nav-item cursor-pointer">
-        <a routerLink="vote" routerLinkActive="active" class="nav-link">Vote</a>
-      </li>
-      <li *ngIf="isRegistered" class="nav-item cursor-pointer">
-        <a routerLink="old-retros" routerLinkActive="active" class="nav-link">Old Retros</a>
-      </li>
-      <li *ngIf="isAdmin" class="nav-item cursor-pointer">
-        <a routerLink="administration" routerLinkActive="active" class="nav-link">Administration</a>
-      </li>
-    </ul>
-    <ul class="navbar-nav ml-auto">
-      <li class="nav-item">
-        <div *ngIf="isLoggedIn; else showLogin">
-          <div class="nav-link cursor-pointer" (click)="logout()"><i class="fas fa-sign-out-alt"></i> Logout</div>
-        </div>
-        <ng-template #showLogin>
-          <div class="nav-link cursor-pointer" (click)="login()"><i class="fas fa-sign-in-alt"></i> Login</div>
-        </ng-template>
-      </li>
-    </ul>
-  </div>
-</nav>
+<div [ngClass]="{'open-sans': font && font === 'open-sans', 'indie-flower': font && font === 'indie-flower'}">
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="navbar-brand cursor-pointer outline-none" routerLink="/">RetroBox</div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav mr-auto">
+        <li *ngIf="isLoggedIn" class="nav-item cursor-pointer">
+          <a routerLink="my-notes" routerLinkActive="active" class="nav-link">My Notes</a>
+        </li>
+        <li *ngIf="isAdmin" class="nav-item cursor-pointer">
+          <a routerLink="retro" routerLinkActive="active" class="nav-link">Retro</a>
+        </li>
+        <li *ngIf="isVotingOn" class="nav-item cursor-pointer">
+          <a routerLink="vote" routerLinkActive="active" class="nav-link">Vote</a>
+        </li>
+        <li *ngIf="isRegistered" class="nav-item cursor-pointer">
+          <a routerLink="old-retros" routerLinkActive="active" class="nav-link">Old Retros</a>
+        </li>
+        <li *ngIf="isAdmin" class="nav-item cursor-pointer">
+          <a routerLink="administration" routerLinkActive="active" class="nav-link">Administration</a>
+        </li>
+      </ul>
+      <ul class="navbar-nav ml-auto">
+        <li *ngIf="isRegistered" class="nav-item cursor-pointer">
+          <a routerLink="settings" routerLinkActive="active" class="nav-link"><i class="fas fa-cog"></i> Settings</a>
+        </li>
+        <li class="nav-item">
+          <div *ngIf="isLoggedIn; else showLogin">
+            <div class="nav-link cursor-pointer" (click)="logout()"><i class="fas fa-sign-out-alt"></i> Logout</div>
+          </div>
+          <ng-template #showLogin>
+            <div class="nav-link cursor-pointer" (click)="login()"><i class="fas fa-sign-in-alt"></i> Login</div>
+          </ng-template>
+        </li>
+      </ul>
+    </div>
+  </nav>
+</div>

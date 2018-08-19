@@ -15,6 +15,7 @@ import { TeamService } from '../shared/services/team.service';
 export class MyNotesComponent implements OnInit, OnDestroy {
   myNotes: MyNote[];
   noteState = NoteState;
+  font: string;
   private appState: AppState;
   private notes: Note[];
   private sprint = '';
@@ -32,6 +33,7 @@ export class MyNotesComponent implements OnInit, OnDestroy {
           this.sprint = this.teamService.getCurrentSprint(this.appState.teamData);
           this.notes = this.notesService.getNotes(this.appState.teamData, this.sprint);
           this.myNotes = this.notesService.getMyNotesWithNewNote(this.notes, this.appState.user);
+          this.font = this.appState.user.font;
         }
       }));
   }

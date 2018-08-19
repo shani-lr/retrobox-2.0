@@ -15,6 +15,7 @@ import { OldRetrosComponent } from './retro/old-retros/old-retros.component';
 import { VotingComponent } from './vote/voting/voting.component';
 import { VotingGuard } from './vote/voting.guard';
 import { ResultsComponent } from './vote/results/results.component';
+import { SettingsComponent } from './settings/settings.component';
 
 const appRoutes: Routes = [
   { path: '', component: HomeComponent },
@@ -26,6 +27,7 @@ const appRoutes: Routes = [
   { path: 'vote', component: VotingComponent, canActivate: [AuthenticationGuard, AuthorizationGuard, VotingGuard] },
   { path: 'vote-results', component: ResultsComponent, canActivate: [AuthenticationGuard, AuthorizationGuard] },
   { path: 'old-retros', component: OldRetrosComponent, canActivate: [AuthenticationGuard, AuthorizationGuard] },
+  { path: 'settings', component: SettingsComponent, canActivate: [AuthenticationGuard, AuthorizationGuard] },
   { path: 'administration', component: AdministrationComponent, canActivate: [AuthenticationGuard, AuthorizationGuard, AdminGuard] },
   { path: '**', redirectTo: '', pathMatch: 'full' },
 ];
