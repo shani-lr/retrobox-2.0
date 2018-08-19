@@ -1,5 +1,15 @@
 html, body {
   height: 100%;
+  font-family: 'Open Sans', sans-serif;
+  font-weight: lighter;
+}
+
+.open-sans {
+  font-family: 'Open Sans', sans-serif;
+  font-weight: lighter;
+}
+
+.indie-flower {
   font-family: 'Indie Flower', cursive;
 }
 

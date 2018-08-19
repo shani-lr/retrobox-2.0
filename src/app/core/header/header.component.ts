@@ -18,6 +18,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   isAdmin: boolean;
   isRegistered: boolean;
   isVotingOn: boolean;
+  font: string;
   private subscriptions: Subscription[] = [];
 
   constructor(private authService: AuthService, private dataService: DataService,
@@ -36,6 +37,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
           this.isRegistered = this.permissionsService.isRegistered(appState);
           this.isAdmin = this.permissionsService.isAdmin(appState);
           this.isVotingOn = this.teamService.getIsVotingOn(appState.team);
+          this.font = appState.user.font
         }
       }));
   }

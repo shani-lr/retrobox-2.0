@@ -1,0 +1,30 @@
+.container {
+  margin-top: 2em;
+}
+
+.btn-info {
+  &:focus {
+    box-shadow: none;
+  }
+  &:not(:disabled):not(.disabled):active:focus {
+    box-shadow: none;
+  }
+}
+
+.show > .btn-info.dropdown-toggle:focus {
+  box-shadow: none;
+}
+
+button:focus {
+  outline: none;
+}
+
+.open-sans {
+  font-family: 'Open Sans', sans-serif;
+  font-weight: lighter;
+}
+
+.indie-flower {
+  font-family: 'Indie Flower', cursive;
+  font-weight: normal;
+}

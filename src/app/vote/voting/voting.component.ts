@@ -23,6 +23,7 @@ export class VotingComponent implements OnInit, OnDestroy {
     message: 'You have 3 votes, use them to vote on the issues matter to you by selecting them (to unselect an issue click it again).'
   };
   voteErrorAlert: Alert;
+  font: string;
   private sprint = '';
   private subscriptions: Subscription[] = [];
   private appState: AppState;
@@ -40,6 +41,7 @@ export class VotingComponent implements OnInit, OnDestroy {
           this.notes = this.notesService.getNotes(this.appState.teamData, this.sprint);
           this.mySelectedNotesText =
             this.notesService.getMySelectedNotesText(this.notes, this.appState.user);
+          this.font = this.appState.user.font;
         }
       }));
   }

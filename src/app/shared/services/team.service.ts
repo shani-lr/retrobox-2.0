@@ -70,4 +70,12 @@ export class TeamService {
     return null;
   }
 
+  getTeamMembers(appState: AppState) {
+    if (appState.app && appState.user && appState.team) {
+      return appState.app.users
+        .filter(user => user.team === appState.user.team && user.name !== appState.user.name)
+        .map(user => user.name);
+    }
+    return [];
+  }
 }

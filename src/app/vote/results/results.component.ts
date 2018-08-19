@@ -28,6 +28,7 @@ export class ResultsComponent implements OnInit, OnDestroy {
     domain: ['#0796ae', '#00bfd1', '#55e0d9', '#a7e790', '#e1fbae']
   };
   results: Result[] = [];
+  font: string;
   private appState: AppState;
   private notes: Note[];
   private subscriptions: Subscription[] = [];
@@ -46,6 +47,7 @@ export class ResultsComponent implements OnInit, OnDestroy {
           if (this.notes) {
             this.results = this.resultsService.calculateVoteResults(this.notes);
           }
+          this.font = this.appState.user.font;
         }
       }));
   }
