@@ -1,20 +1,22 @@
-<div class="container">
-  <div class="row d-flex align-items-center">
-    <div class="col-2">
-      Configure your font:
-    </div>
-    <div class="col-4">
-      <div class="btn-group btn-group-toggle" ngbRadioGroup name="radioBasic" [(ngModel)]="font">
-        <label ngbButtonLabel class="btn-info btn-lg open-sans">
-          <input ngbButton type="radio" [value]="fonts[0]"> Open Sans
-        </label>
-        <label ngbButtonLabel class="btn-info btn-lg indie-flower">
-          <input ngbButton type="radio" [value]="fonts[1]"> Indie Flower
-        </label>
+<div [ngClass]="{'open-sans': font && font === 'open-sans', 'indie-flower': font && font === 'indie-flower'}">
+  <div class="container">
+    <div class="row d-flex align-items-center">
+      <div class="col-2">
+        Configure your font:
       </div>
-    </div>
-    <div class="col-2">
-      <button class="btn btn-success" (click)="onFontChange()"><i class="fas fa-check-circle"></i> Submit</button>
+      <div class="col-4">
+        <div class="btn-group btn-group-toggle" ngbRadioGroup name="radioBasic" [(ngModel)]="font">
+          <label ngbButtonLabel class="btn-info btn-lg open-sans">
+            <input ngbButton type="radio" [value]="fonts[0]"> Open Sans
+          </label>
+          <label ngbButtonLabel class="btn-info btn-lg indie-flower">
+            <input ngbButton type="radio" [value]="fonts[1]"> Indie Flower
+          </label>
+        </div>
+      </div>
+      <div class="col-2">
+        <button class="btn btn-success" (click)="onFontChange()"><i class="fas fa-check-circle"></i> Submit</button>
+      </div>
     </div>
   </div>
 </div>

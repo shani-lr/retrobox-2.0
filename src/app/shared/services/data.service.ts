@@ -11,9 +11,10 @@ import { AuthService } from '../../auth/auth.service';
 import { AppState } from '../models/app-state.model';
 import { Team, TeamData } from '../models/team.model';
 import { AppUser } from '../models/user.model';
-import { Note } from '../models/note.model';
 import { TeamService } from './team.service';
 import { NotesService } from './notes.service';
+import firebase from '@firebase/app';
+import { MyNote } from '../models/note.model';
 
 @Injectable()
 export class DataService {
@@ -64,6 +65,25 @@ export class DataService {
   updateTeam(teamToUpdateName: string, teamToUpdateData: TeamData): Observable<void> {
     return Observable.from(this.db.collection('app').doc(teamToUpdateName).update(teamToUpdateData));
   }
+
+  updateTeamWithUserNoteTransaction(teamToUpdateName: string, teamToUpdateSprint: string, note: MyNote) {
+    const teamDataDocRef = this.db.firestore.collection('app').doc(teamToUpdateName);
+
+    return Observable.from(this.db.firestore.runTransaction((transaction) => {
+      return transaction.get(teamDataDocRef)
+        .then((teamDataDoc) => {
+          const teamData = <TeamData> teamDataDoc.data();
+
+          const notes = this.notesService.getNotes(teamData, teamToUpdateSprint);
+          const updatedNotes = this.notesService.getNotesWithUpdatedUserNotes(notes, note);
+          const updatedTeamData =
+            this.teamService.getTeamDataWithUpdatedNotes(teamData, teamToUpdateSprint, updatedNotes);
+
+          transaction.update(teamDataDocRef, updatedTeamData);
+        });
+    }));
+  }
+
 
   updateTeamWithToggledVoteInTransaction(mySelectedNotesText: string[], note: string, user: AppUser,
                                          teamToUpdateName: string, teamToUpdateSprint: string) {

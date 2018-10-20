@@ -9,11 +9,13 @@ import { NotesService } from './services/notes.service';
 import { TeamService } from './services/team.service';
 import { AppService } from './services/app.service';
 import { PermissionsService } from './services/permissions.service';
+import { NgxSpinnerModule } from 'ngx-spinner';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
+    NgxSpinnerModule,
     NgbModule
   ],
   declarations: [
@@ -29,7 +31,8 @@ import { PermissionsService } from './services/permissions.service';
   exports: [
     AlertComponent,
     FormsModule,
-    NgbModule
+    NgbModule,
+    NgxSpinnerModule
   ]
 })
 export class SharedModule { }

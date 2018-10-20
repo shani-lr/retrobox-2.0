@@ -6,6 +6,7 @@ import { DataService } from '../shared/services/data.service';
 import { AppState } from '../shared/models/app-state.model';
 import { NotesService } from '../shared/services/notes.service';
 import { TeamService } from '../shared/services/team.service';
+import { NgxSpinnerService } from 'ngx-spinner';
 
 @Component({
   selector: 'app-my-notes',
@@ -22,7 +23,7 @@ export class MyNotesComponent implements OnInit, OnDestroy {
   private subscriptions: Subscription[] = [];
 
   constructor(private dataService: DataService, private teamService: TeamService,
-              private notesService: NotesService) {
+              private notesService: NotesService, private spinner: NgxSpinnerService) {
   }
 
   ngOnInit(): void {
@@ -40,18 +41,16 @@ export class MyNotesComponent implements OnInit, OnDestroy {
 
   onSave(note: MyNote): void {
     if (note) {
-      const updatedNotes = this.notesService.getNotesWithUpdatedUserNotes(this.notes, note);
-
-      const updatedTeamData =
-        this.teamService.getTeamDataWithUpdatedNotes(this.appState.teamData, this.sprint, updatedNotes);
-
+      this.spinner.show();
       this.subscriptions.push(
-        this.dataService.updateTeam(this.appState.user.team, updatedTeamData).subscribe());
+        this.dataService.updateTeamWithUserNoteTransaction(
+          this.appState.user.team, this.sprint, note)
+          .subscribe(() => this.spinner.hide()));
     }
   }
 
   onCancel(note: MyNote): void {
-    if(note.state === NoteState.New) {
+    if (note.state === NoteState.New) {
       note.updatedText = '';
     } else if (note.state === NoteState.Edit) {
       note.updatedText = note.text;
