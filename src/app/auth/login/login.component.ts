@@ -1,18 +1,41 @@
-import { Component } from '@angular/core';
-
-import { AlertConsts } from '../../shared/alert/alert.consts';
+import { Component, OnInit } from '@angular/core';
+import { AuthService } from '../auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login',
-  template: `
-    <div class="wrapper">
-      <app-alert [alert]="alertError"></app-alert>
-    </div>`,
-  styles:['.wrapper { margin: 1em; }']
+  templateUrl: './login.component.html',
+  styleUrls: ['./login.component.scss']
 })
-export class LoginComponent  {
-  alertError = {
-    ...AlertConsts.danger,
-    message: "You need to be logged in to view this page."
+export class LoginComponent implements OnInit {
+  email = '';
+  password = '';
+  private subscriptions = [];
+
+  constructor(private authService: AuthService,
+              private router: Router) {
+
   }
+
+  ngOnInit(): void {
+    this.subscriptions.push(
+      this.authService.isLoggedIn().subscribe((isLoggedIn: boolean) => {
+        if (isLoggedIn) {
+          this.router.navigate(['/notes']);
+        }
+      }));
+  }
+
+  googleLogin() {
+    this.authService.googleLogin();
+  }
+
+  signUp() {
+    this.authService.signup(this.email, this.password);
+  }
+
+  login() {
+    this.authService.login(this.email, this.password);
+  }
+
 }

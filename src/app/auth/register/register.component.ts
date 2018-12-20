@@ -63,6 +63,7 @@ export class RegisterComponent implements OnInit, OnDestroy {
   }
 
   onJoinTeam(): void {
+    console.log(this.userName);
     const appToUpdate = this.appService
       .getUpdatedApplicationWithUserToAdd(this.app, this.userName, this.teamToJoin);
     this.subscriptions.push(

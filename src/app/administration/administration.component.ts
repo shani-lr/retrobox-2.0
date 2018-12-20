@@ -38,6 +38,7 @@ export class AdministrationComponent implements OnInit, OnDestroy {
       if (this.appState) {
         this.isVotingOn = this.teamService.getIsVotingOn(this.appState.team);
         this.nonAdminTeamMembers = this.teamService.getNonAdminTeamMembers(this.appState);
+        console.log(this.nonAdminTeamMembers);
         this.teamMembers = this.teamService.getTeamMembers(this.appState);
         this.currentSprint = this.teamService.getCurrentSprint(this.appState.teamData);
         this.font = this.appState.user.font;

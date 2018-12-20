@@ -10,9 +10,17 @@ export class AuthService {
 
   constructor(private angularFireAuth: AngularFireAuth) { }
 
-  login(): Observable<any> {
+  googleLogin(): Observable<any> {
     return Observable.from(this.angularFireAuth.auth.signInWithPopup(
       new firebase.firebase.auth.GoogleAuthProvider()));
+  }
+
+  login(email: string, password: string): Observable<any> {
+    return Observable.from(this.angularFireAuth.auth.signInWithEmailAndPassword(email, password));
+  }
+
+  signup(email: string, password: string): Observable<any> {
+    return Observable.from(this.angularFireAuth.auth.createUserWithEmailAndPassword(email, password));
   }
 
   logout(): Observable<any> {
@@ -24,8 +32,11 @@ export class AuthService {
   }
 
   getLoggedInUserName(): Observable<string> {
-    return this.angularFireAuth.authState.map((user: { displayName: string }) => {
-      return user ? user.displayName : null;
+    return this.angularFireAuth.authState.map((user: { displayName: string, email: string }) => {
+      if (!user) {
+        return null;
+      }
+      return user.displayName ? user.displayName : user.email.split('@')[0];
     });
   }
 }

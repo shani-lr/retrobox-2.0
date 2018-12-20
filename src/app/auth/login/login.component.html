@@ -1,0 +1,32 @@
+<div class="container">
+  <div class="row">
+    <div class="col-2">
+      <label class="div padding-right-1em">Email: </label>
+    </div>
+    <div class="col">
+      <input type="email" class="form-control team-input" [(ngModel)]="email">
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-2">
+      <label class="div padding-right-1em">Password: </label>
+    </div>
+    <div class="col">
+      <input style="margin-bottom: 0.2rem" type="password" class="form-control team-input" [(ngModel)]="password">
+      <div style="font-size: 0.8rem; color: grey; margin-bottom: 1em">(Password should be at least 6 characters long).</div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-2">
+      <button class="btn btn-info" (click)="login()"><i class="fas fa-sign-in-alt"></i> Login</button>
+    </div>
+    <div class="col">
+      <button class="btn btn-outline-info" (click)="signUp()"><i class="fas fa-user-circle"></i> New user? Sign up!</button>
+    </div>
+  </div>
+  <div class="row margin-top">
+    <div class="col">
+      <button class="btn btn-danger" (click)="googleLogin()"><i class="fab fa-google"></i> Login with Google</button>
+    </div>
+  </div>
+</div>
